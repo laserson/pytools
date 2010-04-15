@@ -7,7 +7,7 @@ import string
 def substitute(seq,pos,sub):
     return seq[:pos] + sub + seq[pos+1:]
 
-complement = string.maketrans('ACGTRYSWKMBDHVN','TGCAYRSWMKVHDBN')
+complement_table = string.maketrans('ACGTRYSWKMBDHVN','TGCAYRSWMKVHDBN')
 
 def reverse_complement(seq):
     """Compute reverse complement of sequence.
@@ -15,13 +15,13 @@ def reverse_complement(seq):
     Mindful of UIPAC ambiguities.
     Return all uppercase.
     """
-    return seq.upper().translate(complement)[::-1]
+    return seq.upper().translate(complement_table)[::-1]
 
 def reverse(seq):
     return seq[::-1]
 
 def complement(seq):
-    return seq.upper().translate(complement)
+    return seq.upper().translate(complement_table)
 
 
 # ============================

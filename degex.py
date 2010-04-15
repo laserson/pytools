@@ -6,23 +6,28 @@
 #
 # works by implementing a recursive depth first search
 
-import sys
-from Bio           import SeqIO
-from Bio.Alphabet  import IUPAC
-from Bio.Data      import IUPACData
-from Bio.SeqRecord import SeqRecord
+IUPAC_vals = {'A': 'A',
+              'B': 'CGT',
+              'C': 'C',
+              'D': 'AGT',
+              'G': 'G',
+              'H': 'ACT',
+              'K': 'GT',
+              'M': 'AC',
+              'N': 'GATC',
+              'R': 'AG',
+              'S': 'CG',
+              'T': 'T',
+              'V': 'ACG',
+              'W': 'AT',
+              'X': 'GATC',
+              'Y': 'CT'}
 
-true =  1
-false = 0
+# ======================
+# = Depth first search =
+# ======================
 
-IUPAC_vals = IUPACData.ambiguous_dna_values
-
-
-#################
-##     DFS     ##
-#################
-
-class node:
+class dfs_node:
     def __init__(self, cum, rem):
         self.visited =    false
         self.neighbors =  []
@@ -31,102 +36,53 @@ class node:
 
 # to use: must supply:
 #    1. a list where the sequences will be pushed and
-#    2. a node with cumul_seq empty and remain_seq = IUPAC DNA sequence
+#    2. a dfs_node with cumul_seq empty and remain_seq = IUPAC DNA sequence
 
-
-def expand_seq( curr_node, cum_list ):
-    curr_node.visited = true
+def dfs_expand_seq( curr_dfs_node, cum_list ):
+    curr_dfs_node.visited = true
 
     # if we are not at the end of the tree yet
-    if len(curr_node.remain_seq) > 0:
-        # construct neighbors of current node based on remaining sequence
-        for nucleotide in IUPAC_vals[ curr_node.remain_seq[0] ]:
-            curr_node.neighbors.append( node(curr_node.cumul_seq + nucleotide, curr_node.remain_seq[1:]) )
+    if len(curr_dfs_node.remain_seq) > 0:
+        # construct neighbors of current dfs_node based on remaining sequence
+        for nucleotide in IUPAC_vals[ curr_dfs_node.remain_seq[0] ]:
+            curr_dfs_node.neighbors.append( dfs_node(curr_dfs_node.cumul_seq + nucleotide, curr_dfs_node.remain_seq[1:]) )
 
         # implement recursive DFS
-        for neighbor in curr_node.neighbors:
+        for neighbor in curr_dfs_node.neighbors:
             if neighbor.visited == false:
-                expand_seq( neighbor, cum_list )
+                dfs_expand_seq( neighbor, cum_list )
 
     # we should only run this when there are no neighbors left
-    elif len(curr_node.remain_seq) == 0:
-        cum_list.append(curr_node.cumul_seq)
+    elif len(curr_dfs_node.remain_seq) == 0:
+        cum_list.append(curr_dfs_node.cumul_seq)
 
+def expand_seq(seq):
+    expanded_list = []
+    start_node = dfs_node('',seq)
+    dfs_expand_seq( start_node, expanded_list )
+    return expanded_list
 
-##################
-##     MAIN     ##
-##################
-        
-ipf = open( sys.argv[1], 'r' )
-opf = open( sys.argv[2], 'w' )
+# ========
+# = MAIN =
+# ========
 
-for line in ipf:
-    # if fasta header
-    if line[0] == '>':
-        cur_fasta = line.strip()
-    else:
-        cur_seq = line.strip()
-        cur_seq = cur_seq.upper()
-
-        # perform DFS and expand out sequences
-        expanded_list = []
-        start_node = node('',cur_seq)
-
-        expand_seq( start_node, expanded_list )
-
-        # spit out sequences in new file
-        for s in expanded_list:
-            opf.write(cur_fasta + '\n')
-            opf.write(s + '\n')
-            
-ipf.close()
-opf.close()
-
-
-
-####################################
-####################################
-##
-##   THE CODE BELOW IS FOR
-##   PYTHON 2.5 AND THE LATEST
-##   VERSION OF BIOPYTHON, WHICH
-##   ARE NOT INSTALLED ON orchestra
-##
-##   I HAVE REWRITTEN THE CODE
-##   ABOVE SO THAT IT DOES NOT USE
-##   THE BIOPYTHON SYSTEM, AND
-##   PARSES THE FILE MANUALLY
-##
-##   -UL, 14 April 2008
-##
-####################################
-####################################
-##
-###################
-####     MAIN     ##
-###################
-##
-##ipf = open( sys.argv[1], 'r' )
-##opf = open( sys.argv[2], 'w' )
-##
-##for seq_record in SeqIO.parse(ipf, "fasta"):
-##    # make seq object kosher
-##    seq_record.seq.data = seq_record.seq.data.upper()
-##    seq_record.seq.alphabet = IUPAC.ambiguous_dna
-##    
-##    # perform DFS and expand out sequences
-##    expanded_list = []
-##    start_node = node('',seq_record.seq)
-##
-##    expand_seq( start_node, expanded_list )
-##
-##    # spit out sequences in new file
-##    # fasta headers will have numbers appended
-##    expand_fasta = [ SeqRecord(s,seq_record.id+'_deg_'+str(i)) for (i,s) in zip(range(1,length(expanded_list)+1),expanded_list) ]
-##    SeqIO.write(expand_fasta, opf, "fasta")
-##
-##ipf.close()
-##opf.close()
-##
-####################################
-####################################
+if __name__ = '__main__':
+    import sys
+    
+    from Bio import SeqIO
+    
+    if len(sys.argv) == 3:
+        inhandle = open(sys.argv[1])
+        outhandle = open(sys.argv[2])
+    elif len(sys.argv) == 2:
+        inhandle = open(sys.argv[1])
+        outhandle = sys.stdout
+    elif len(sys.argv) == 1:
+        inhandle = sys.stdin
+        outhandle = sys.stdout
+    
+    for record in SeqIO.parse(inhandle,'fasta'):
+        seq = record.seq.tostring().upper()
+        expanded_seqs = expand_seq( seq )
+        for (i,s) in enumerate(expanded_seqs):
+            outhandle.write(">%s|%i\n%s\n" % (record.description,i,s))     # write fasta output

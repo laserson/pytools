@@ -37,6 +37,15 @@ def random_DNA_sequence(N):
     randDNA = ''.join([alpha[i] for i in randints])
     return randDNA
 
+def substitute(seq,pos,sub):
+    return seq[:pos] + sub + seq[pos+1:]
+
+randint = np.random.randint
+
+def random_read(seq,read_len):
+    position = randint(0,len(seq)-read_len+1)
+    return (position,seq[position:position+read_len])
+
 def revcomp(seq):
     """Compute reverse complement of sequence.  seq must be pure string; will return all uppercase."""
     

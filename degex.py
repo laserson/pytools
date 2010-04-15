@@ -29,7 +29,7 @@ IUPAC_vals = {'A': 'A',
 
 class dfs_node:
     def __init__(self, cum, rem):
-        self.visited =    false
+        self.visited =    False
         self.neighbors =  []
         self.cumul_seq =  cum
         self.remain_seq = rem
@@ -39,7 +39,7 @@ class dfs_node:
 #    2. a dfs_node with cumul_seq empty and remain_seq = IUPAC DNA sequence
 
 def dfs_expand_seq( curr_dfs_node, cum_list ):
-    curr_dfs_node.visited = true
+    curr_dfs_node.visited = True
 
     # if we are not at the end of the tree yet
     if len(curr_dfs_node.remain_seq) > 0:
@@ -49,7 +49,7 @@ def dfs_expand_seq( curr_dfs_node, cum_list ):
 
         # implement recursive DFS
         for neighbor in curr_dfs_node.neighbors:
-            if neighbor.visited == false:
+            if neighbor.visited == False:
                 dfs_expand_seq( neighbor, cum_list )
 
     # we should only run this when there are no neighbors left
@@ -66,16 +66,16 @@ def expand_seq(seq):
 # = MAIN =
 # ========
 
-if __name__ = '__main__':
+if __name__ == '__main__':
     import sys
     
     from Bio import SeqIO
     
     if len(sys.argv) == 3:
-        inhandle = open(sys.argv[1])
-        outhandle = open(sys.argv[2])
+        inhandle = open(sys.argv[1],'r')
+        outhandle = open(sys.argv[2],'w')
     elif len(sys.argv) == 2:
-        inhandle = open(sys.argv[1])
+        inhandle = open(sys.argv[1],'r')
         outhandle = sys.stdout
     elif len(sys.argv) == 1:
         inhandle = sys.stdin
@@ -85,4 +85,4 @@ if __name__ = '__main__':
         seq = record.seq.tostring().upper()
         expanded_seqs = expand_seq( seq )
         for (i,s) in enumerate(expanded_seqs):
-            outhandle.write(">%s|%i\n%s\n" % (record.description,i,s))     # write fasta output
+            outhandle.write(">%s|%i\n%s\n" % (record.description,i+1,s))     # write fasta output

@@ -1,4 +1,7 @@
 import string
+import random
+
+random.seed()
 
 # ==============================
 # = General sequence utilities =
@@ -12,7 +15,7 @@ complement_table = string.maketrans('ACGTRYSWKMBDHVN','TGCAYRSWMKVHDBN')
 def reverse_complement(seq):
     """Compute reverse complement of sequence.
     
-    Mindful of UIPAC ambiguities.
+    Mindful of IUPAC ambiguities.
     Return all uppercase.
     """
     return seq.upper().translate(complement_table)[::-1]
@@ -23,6 +26,13 @@ def reverse(seq):
 def complement(seq):
     return seq.upper().translate(complement_table)
 
+def gc_content(seq):
+    gc = seq.lower().count('g') + seq.lower().count('c')
+    return float(gc) / len(seq)
+
+def random_dna_seq(n):
+    choice = random.choice
+    return reduce(lambda cumul,garbage:cumul+choice('ACGT'),xrange(n),'')
 
 # ============================
 # = biopython-specific tools =
@@ -30,6 +40,9 @@ def complement(seq):
 
 from Bio.Seq       import Seq
 from Bio.SeqRecord import SeqRecord
+
+def make_SeqRecord(name,seq):
+    return SeqRecord(Seq(seq),id=name,name=name,description=name)
 
 def get_string(seqobj):
     if isinstance(seqobj,SeqRecord):

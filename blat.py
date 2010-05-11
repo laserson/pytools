@@ -4,10 +4,7 @@
 import subprocess
 import os
 
-hg_idx = ''
-
-, shell=True, stdin=None, stdout=PIPE, stderr=STDOUT, close_fds=True
-
+hg_idx = '~/genome/hg19.2bit'
 
 def start_gfServer(file2idx,tileSize=7,stepSize=2,minMatch=1,maxGap=4):
     params = (tileSize,stepSize,minMatch,maxGap,file2idx)

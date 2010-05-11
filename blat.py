@@ -24,10 +24,11 @@ def poll_sequence(seq,file2idx,minScore=10,minIdentity=70):
     import sys
     print "About to initiate command"
     sys.stdout.flush()
-    p = subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE)
+    p = subprocess.Popen(cmd,shell=True,stdin=subprocess.PIPE,stdout=subprocess.PIPE)
     print "Initiated command.  Will now communicate with process."
     sys.stdout.flush()
-    p.communicate(">query\n%s" % seq)
+    p.stdin.write(">query\n%s" % seq)
+    # p.communicate(">query\n%s" % seq)
     print "Finished communicating.  Waiting now..."
     sys.stdout.flush()
     

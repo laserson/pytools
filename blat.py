@@ -33,6 +33,8 @@ def poll_sequence(seq,file2idx,minScore=10,minIdentity=70):
     print "Finished communicating.  Waiting now..."
     sys.stdout.flush()
     
+    print p.stdout.read()
+    
     num = 0
     for line in p.stdout:
         print "Reading output..."

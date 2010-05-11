@@ -27,7 +27,8 @@ def poll_sequence(seq,file2idx,minScore=10,minIdentity=70):
     p = subprocess.Popen(cmd,shell=True,stdin=subprocess.PIPE,stdout=subprocess.PIPE)
     print "Initiated command.  Will now communicate with process."
     sys.stdout.flush()
-    p.stdin.write(">query\n%s" % seq)
+    import cStringIO
+    p.stdin.write(cStringIO.StringIO(">query\n%s" % seq).read())
     # p.communicate(">query\n%s" % seq)
     print "Finished communicating.  Waiting now..."
     sys.stdout.flush()

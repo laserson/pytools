@@ -28,7 +28,8 @@ def poll_sequence(seq,file2idx,minScore=10,minIdentity=70):
     print "Initiated command.  Will now communicate with process."
     sys.stdout.flush()
     import cStringIO
-    p.stdin.write(cStringIO.StringIO(">query\n%s" % seq).read())
+    p.stdin.write(">query\n%s\n" % seq)
+    # p.stdin.write(cStringIO.StringIO(">query\n%s\n" % seq).read())
     # p.communicate(">query\n%s" % seq)
     print "Finished communicating.  Waiting now..."
     sys.stdout.flush()

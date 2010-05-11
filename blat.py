@@ -25,12 +25,10 @@ def poll_sequence(seq,file2idx,minScore=10,minIdentity=70):
     p.stdin.write(">query\n%s\n" % seq)
     p.stdin.close()
     
-    print p.stdout.read()
+    num = 0
+    for line in p.stdout:
+        if line == "Output is in /dev/stdout":
+            continue
+        num += 1
     
-    # num = 0
-    # for line in p.stdout:
-    #     print "Reading output..."
-    #     sys.stdout.flush()
-    #     num += 1
-    
-    # return num
+    return num

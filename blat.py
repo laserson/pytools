@@ -27,7 +27,7 @@ def poll_sequence(seq,file2idx,minScore=10,minIdentity=70):
     
     num = 0
     for line in p.stdout:
-        if line == "Output is in /dev/stdout":
+        if line == "Output is in /dev/stdout\n":
             continue
         num += 1
     

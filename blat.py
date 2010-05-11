@@ -29,6 +29,7 @@ def poll_sequence(seq,file2idx,minScore=10,minIdentity=70):
     sys.stdout.flush()
     import cStringIO
     p.stdin.write(">query\n%s\n" % seq)
+    p.stdin.close()
     # p.stdin.write(cStringIO.StringIO(">query\n%s\n" % seq).read())
     # p.communicate(">query\n%s" % seq)
     print "Finished communicating.  Waiting now..."
@@ -36,11 +37,11 @@ def poll_sequence(seq,file2idx,minScore=10,minIdentity=70):
     
     print p.stdout.read()
     
-    num = 0
-    for line in p.stdout:
-        print "Reading output..."
-        sys.stdout.flush()
-        num += 1
+    # num = 0
+    # for line in p.stdout:
+    #     print "Reading output..."
+    #     sys.stdout.flush()
+    #     num += 1
     
     print "Finished with output.  Returning"
     sys.stdout.flush()

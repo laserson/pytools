@@ -21,11 +21,23 @@ def poll_sequence(seq,file2idx,minScore=10,minIdentity=70):
     nibdir = os.path.dirname(file2idx)
     params = (minScore,minIdentity,nibdir)
     cmd = "gfClient -minScore=%i -minIdentity=%i -nohead localhost 17779 %s /dev/stdin /dev/stdout" % params
+    import sys
+    print "About to initiate command"
+    sys.stdout.flush()
     p = subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE)
+    print "Initiated command.  Will now communicate with process."
+    sys.stdout.flush()
     p.communicate(">query\n%s" % seq)
+    print "Finished communicating.  Waiting now..."
+    sys.stdout.flush()
     
     num = 0
     for line in p.stdout:
+        print "Reading output..."
+        sys.stdout.flush()
         num += 1
+    
+    print "Finished with output.  Returning"
+    sys.stdout.flush()
     
     return num

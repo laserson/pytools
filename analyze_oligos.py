@@ -6,14 +6,14 @@ import numpy as np
 import seqtools
 import oligoTm
 import unafold
-import blast
+import blat
 
 # ==================
 # = Output primers =
 # ==================
 
 def output_primers(primers,names):
-    datum = ('name','sequence','len','Tm',r'%GC','ss-dG','BLAST')
+    datum = ('name','sequence','len','Tm',r'%GC','ss-dG','BLAT')
     header = "\n%-25s %-30s %-4s %-5s %-4s %-7s %-5s\n" % datum
     sys.stdout.write(header)
     
@@ -23,9 +23,9 @@ def output_primers(primers,names):
     dGs = map(lambda p: unafold.hybrid_ss_min(p,NA='DNA',sodium=0.05),primers)
     trunc_primers = [p[-min(18,min(lens)):] for p in primers]
     seqrecords = map(lambda t: seqtools.make_SeqRecord(*t),zip(names,trunc_primers))
-    blast_hits = blast.number_genome_qblast_hits(seqrecords)
+    blat_hits = map(blat.search_sequence,seqrecords)
     
-    for datum in zip(names,primers,lens,Tms,gcs,dGs,blast_hits):
+    for datum in zip(names,primers,lens,Tms,gcs,dGs,blat_hits):
         primer_string = "%-25s %-30s %-4i %-5.1f %-4.0f %-7.1f %-5i\n" % datum
         sys.stdout.write(primer_string)
     
@@ -37,7 +37,7 @@ def output_primers(primers,names):
     sys.stdout.write('Tm     mean: %5.1f    std: %5.1f    min: %5.1f    max %5.1f\n' % summary_data(Tms))
     sys.stdout.write('%%GC    mean: %5.1f    std: %5.1f    min: %5.1f    max %5.1f\n' % summary_data(gcs))
     sys.stdout.write('dGs    mean: %5.1f    std: %5.1f    min: %5.1f    max %5.1f\n' % summary_data(dGs))
-    sys.stdout.write('BLAST  mean: %5.1f    std: %5.1f    min: %5.1f    max %5.1f    total: %5.1f\n' % (summary_data(blast_hits)+(np.sum(blast_hits),)))
+    sys.stdout.write('BLAT  mean: %5.1f    std: %5.1f    min: %5.1f    max %5.1f    total: %5.1f\n' % (summary_data(blat_hits)+(np.sum(blat_hits),)))
 
 if __name__ == '__main__':
     
@@ -55,4 +55,11 @@ if __name__ == '__main__':
     names = [rec.id for rec in seqrecords]
     primers = [seqtools.get_string(rec) for rec in seqrecords]
     
+    if not blat.is_server_running():
+        blat_server = blat.start_gfServer()
+    
     output_primers(primers,names)
+    
+    # if blat.is_server_running():
+    #     blat.stop_gfServer( blat_server )
+

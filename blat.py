@@ -45,7 +45,8 @@ def stop_gfServer(p=None):
 
 # HACK/BUG: for some reason gfClient is doubling the directory prefix.  It works if
 #           file2idx='/'
-def search_sequences(seqs,file2idx=hg_idx,minScore=20,minIdentity=70,debug=False):
+# def search_sequences(seqs,file2idx=hg_idx,minScore=20,minIdentity=70,debug=False):
+def search_sequences(seqs,file2idx='/',minScore=20,minIdentity=70,debug=False):    
     if not is_server_running():
         raise RuntimeError, "BLAT server not running."
     

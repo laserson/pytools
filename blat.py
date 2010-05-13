@@ -59,6 +59,7 @@ def search_sequences(seqs,file2idx=hg_idx,minScore=20,minIdentity=70,debug=False
     nibdir = os.path.dirname(file2idx)
     params = (minScore,minIdentity,nibdir)
     cmd = "gfClient -minScore=%i -minIdentity=%i -nohead localhost 17779 %s /dev/stdin /dev/stdout" % params
+    if debug: print cmd
     p = subprocess.Popen(cmd,shell=True,stdin=subprocess.PIPE,stdout=subprocess.PIPE)
     p.stdin.write( query )
     p.stdin.close()

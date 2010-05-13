@@ -12,19 +12,22 @@ def substitute(seq,pos,sub):
 
 complement_table = string.maketrans('ACGTRYSWKMBDHVN','TGCAYRSWMKVHDBN')
 
+def reverse(seq):
+    return seq[::-1]
+
+def complement(seq):
+    return seq.upper().translate(complement_table)
+
 def reverse_complement(seq):
     """Compute reverse complement of sequence.
     
     Mindful of IUPAC ambiguities.
     Return all uppercase.
     """
-    return seq.upper().translate(complement_table)[::-1]
+    return reverse(complement(seq))
+    # return seq.upper().translate(complement_table)[::-1]
 
-def reverse(seq):
-    return seq[::-1]
 
-def complement(seq):
-    return seq.upper().translate(complement_table)
 
 def gc_content(seq):
     gc = seq.lower().count('g') + seq.lower().count('c')

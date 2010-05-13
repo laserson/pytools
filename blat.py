@@ -11,7 +11,7 @@ import seqtools
 
 hg_idx = '~/genome/hg19.2bit'
 
-def start_gfServer(file2idx=hg_idx,tileSize=10,stepSize=2,minMatch=2,maxGap=4,repMatch=1000000,debug=False):
+def start_gfServer(file2idx=hg_idx,tileSize=9,stepSize=2,minMatch=2,maxGap=4,repMatch=1000000,debug=False):
     params = (tileSize,stepSize,minMatch,maxGap,repMatch,file2idx)
     cmd = "gfServer start -tileSize=%i -stepSize=%i -minMatch=%i -maxGap=%i -repMatch=%i localhost 17779 %s" % params
     if debug: print "Command is:\n%s" % cmd

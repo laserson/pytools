@@ -3,11 +3,18 @@ import math
 from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
 
-def oligo_Tm(seq):
+def oligoTm(seqobj):
     """Computes the melting temp based on the NN model.
     
     (Originated from Kun Zhang)
     """
+    
+    if isinstance(seqobj,SeqRecord):
+        seq = seqobj.seq.tostring().upper()
+    elif isinstance(seqobj,Seq):
+        seq = seqobj.tostring().upper()
+    elif isinstance(seqobj,str):
+        seq = seqobj.upper()
     
     # set the default Tm parameters
     C_primer = 250.0 # nM
@@ -38,3 +45,5 @@ def oligo_Tm(seq):
     #val = math.log(C_primer*(1-percentage_annealed)/percentage_annealed)
     Tm =(dH * 1000) / (dS + R * (math.log(C_primer*(1-percentage_annealed)/percentage_annealed)-21.4164)) - 273.15 - 0.75*percentage_DMSO
     return Tm
+
+oligo_Tm = oligoTm

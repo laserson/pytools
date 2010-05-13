@@ -16,7 +16,7 @@ def start_gfServer(file2idx=hg_idx,tileSize=10,stepSize=2,minMatch=2,maxGap=4,re
     cmd = "gfServer start -tileSize=%i -stepSize=%i -minMatch=%i -maxGap=%i -repMatch=%i localhost 17779 %s" % params
     if debug: print "Command is:\n%s" % cmd
     p = subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE)
-    time.sleep(240)
+    time.sleep(660)
     print "Finished starting up BLAT server (hopefully)."
     return p
 
@@ -74,4 +74,4 @@ def search_sequences(seqs,file2idx=hg_idx,minScore=20,minIdentity=70,debug=False
     return num
 
 def search_sequence(seq,file2idx=hg_idx,minScore=20,minIdentity=50,debug=False):
-    return search_sequences([seq],file2idx=hg_idx,minScore=5,minIdentity=50,debug=False)
+    return search_sequences([seq],file2idx,minScore,minIdentity,debug)

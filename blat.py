@@ -77,5 +77,5 @@ def search_sequences(seqs,file2idx='/',minScore=15,minIdentity=70,debug=False):
 
 # HACK/BUG: for some reason gfClient is doubling the directory prefix.  It works if
 #           file2idx='/'
-def search_sequence(seq,file2idx='/',minScore=20,minIdentity=50,debug=False):
+def search_sequence(seq,file2idx='/',minScore=15,minIdentity=50,debug=False):
     return search_sequences([seq],file2idx,minScore,minIdentity,debug)

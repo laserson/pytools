@@ -11,7 +11,7 @@ import seqtools
 
 hg_idx = '~/genome/hg19.2bit'
 
-def start_gfServer(file2idx=hg_idx,tileSize=9,stepSize=1,minMatch=2,maxGap=4,repMatch=1000000,debug=False):
+def start_gfServer(file2idx=hg_idx,tileSize=11,stepSize=2,minMatch=2,maxGap=4,repMatch=1000000,debug=False):
     params = (tileSize,stepSize,minMatch,maxGap,repMatch,file2idx)
     cmd = "gfServer start -tileSize=%i -stepSize=%i -minMatch=%i -maxGap=%i -repMatch=%i localhost 17779 %s" % params
     if debug: print "Command is:\n%s" % cmd
@@ -46,7 +46,7 @@ def stop_gfServer(p=None):
 # HACK/BUG: for some reason gfClient is doubling the directory prefix.  It works if
 #           file2idx='/'
 # def search_sequences(seqs,file2idx=hg_idx,minScore=20,minIdentity=70,debug=False):
-def search_sequences(seqs,file2idx='/',minScore=20,minIdentity=70,debug=False):    
+def search_sequences(seqs,file2idx='/',minScore=15,minIdentity=70,debug=False):    
     if not is_server_running():
         raise RuntimeError, "BLAT server not running."
     

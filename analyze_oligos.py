@@ -21,7 +21,8 @@ def output_primers(primers,names):
     Tms = map(oligoTm.oligo_Tm,primers)
     gcs = map(lambda p: seqtools.gc_content(p)*100,primers)
     dGs = map(lambda p: unafold.hybrid_ss_min(p,NA='DNA',sodium=0.05),primers)
-    trunc_primers = [p[-min(18,min(lens)):] for p in primers]
+    # trunc_primers = [p[-min(18,min(lens)):] for p in primers]
+    trunc_primers = primers # NO TRUNCATION
     seqrecords = map(lambda t: seqtools.make_SeqRecord(*t),zip(names,trunc_primers))
     blat_hits = map(blat.search_sequence,seqrecords)
     

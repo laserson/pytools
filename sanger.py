@@ -1,6 +1,3 @@
-import os
-import tempfile
-
 import exonerate
 
 standard_primers = {    # 5' -> 3'
@@ -15,7 +12,7 @@ standard_vectors = {
     'pCR4-TOPO-right' : 'aagggcgaattcgcggccgctaaattcaattcgccctatagtgagtcgtattacaattca'
 }
 
-def align2left(left,right):
+def trimleft(left,read):
     """Align 2 seqs, forcing alignment of right-end of left.
     
                      ...RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR...
@@ -23,12 +20,34 @@ def align2left(left,right):
     
     Uses exonerate.
     """
-    cmd = exonerate.ExonerateCommand('findend','parsable')
+    # perform alignment
+    cmd = exonerate.ExonerateCommand('findend','parsable','bestonly')
+    rawaln = exonerate.run_exonerate2(cmd,left,read)
+    aln = exonerate.parse_aln(rawaln)
     
-    try:
-        (fdq,query) = tempfile.mkstemp()
-        (fdt,target) = tempfile.mkstemp()
-    finally:
-        
+    # check that the right-end of left was successfully placed
+    if aln['query_len'] != aln['query_aln_end']:
+        raise ValueError, "failed to align right-end of left sequence"
     
+    # return trimmed sequence
+    return read[aln['target_aln_end']:]
+
+def trimright(right,read):
+    """Align 2 seqs, forcing alignment of left-end of right.
     
+    ...DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD...
+        (forced aln here) -> RRRRRRRRRRRRRRRRRRRRRRRRRRRRR...
+    
+    Uses exonerate.
+    """
+    # perform alignment
+    cmd = exonerate.ExonerateCommand('findend','parsable','bestonly')
+    rawaln = exonerate.run_exonerate2(cmd,right,read)
+    aln = exonerate.parse_aln(rawaln)
+    
+    # check that the left-end of right was successfully placed
+    if aln['query_aln_end'] != 0:
+        raise ValueError, "failed to align left-end of right sequence"
+    
+    # return trimmed sequence
+    return read[aln['target_aln_start']:]

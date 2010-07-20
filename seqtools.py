@@ -37,6 +37,39 @@ def random_dna_seq(n):
     choice = random.choice
     return reduce(lambda cumul,garbage:cumul+choice('ACGT'),xrange(n),'')
 
+# ==========================
+# = Manual FASTA iteration =
+# ==========================
+
+# taken from biopython
+
+identity = string.maketrans('','')
+nonalpha = identity.translate(identity,string.ascii_letters)
+
+def FastaIterator(handle,title2ids=lambda s: s):
+    while True:
+        line = handle.readline()
+        if line == '' : return
+        if line[0] == '>':
+            break
+    
+    while True:
+        if line[0] != '>':
+            raise ValueError("Records in Fasta files should start with '>' character")
+        descr = title2ids(line[1:].rstrip())
+        fullline = ''
+        line = handle.readline()
+        while True:
+            if not line : break
+            if line[0] == '>': break
+            fullline += line.translate(identity,nonalpha)
+            line = handle.readline()
+        
+        yield (descr,fullline)
+        
+        if not line : return #StopIteration
+    assert False, "Should not reach this line"
+
 # ============================
 # = biopython-specific tools =
 # ============================

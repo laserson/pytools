@@ -2,6 +2,8 @@ import os
 import tempfile
 import subprocess
 
+import seqtools
+
 class ExonerateCommand(object):
     """Build command for exonerate"""
     
@@ -92,14 +94,17 @@ class ExonerateCommand(object):
         'splice5',
         'forcegtag']
     
+    
     def __init__(self, *args, **kw):
         # register preset handlers
         self.register = {
             'affine:local' : self.preset_affinelocal,
+            'affine:global' : self.preset_affineglobal,
             'findend' : self.preset_findend,
             'parsable' : self.preset_parsable,
             'pretty' : self.preset_pretty,
-            'bestonly' : self.preset_bestonly
+            'bestonly' : self.preset_bestonly,
+            'ungapped' : self.preset_ungapped
         }
         
         # these attributes must be handled special, and set manually at the start
@@ -171,19 +176,28 @@ class ExonerateCommand(object):
     def preset_affinelocal(self):
         self.model = 'affine:local'
     
+    def preset_affineglobal(self):
+        self.model = 'affine:global'
+        self.exhaustive = True
+    
+    def preset_ungapped(self):
+        self.model = 'ungapped'
+        self.exhaustive = True
+    
     def preset_findend(self):
         self.model = 'affine:overlap'
         self.exhaustive = True
     
     def preset_parsable(self):
         self.verbose = 0
-        self.showalignment = False
-        self.showvulgar = False
+        # self.showalignment = False
+        # self.showvulgar = False
         self.ryo = 'aln_summary: %qi %ql %qab %qae %qS %ti %tl %tab %tae %tS %s %et %ei %pi\n'
     
     def preset_pretty(self):
-        # TODO: human-readable output
-        pass
+        self.showalignment = True
+        self.showvulgar = True
+        self.showsugar = True
     
     def preset_bestonly(self):
         self.bestn = 1
@@ -209,7 +223,7 @@ def run_exonerate(cmd,query=None,target=None):
     p.wait()
     return aln
 
-def run_exonerate2(cmd,query,target):
+def run_exonerate2(cmd,query,target,queryname='query',targetname='target',debug=False):
     """Perform pairwise alignment using cmd ExonerateCommand object
     
     query and target are sequences
@@ -221,10 +235,12 @@ def run_exonerate2(cmd,query,target):
     (fdt,targetfile) = tempfile.mkstemp()
     iopq = open(queryfile,'w')
     iopt = open(targetfile,'w')
-    print >>iopq, ">query\n%s\n" % query
-    print >>iopt, ">target\n%s\n" % target
+    print >>iopq, ">%s\n%s\n" % (queryname,query)
+    print >>iopt, ">%s\n%s\n" % (targetname,target)
     iopq.close()
     iopt.close()
+    os.close(fdq)
+    os.close(fdt)
     
     try:
         # perform alignment
@@ -236,13 +252,36 @@ def run_exonerate2(cmd,query,target):
         os.remove(queryfile)
         os.remove(targetfile)
     
+    if debug: print aln
+    
     return aln
 
-def parse_aln(rawaln):
-    """Parse alignment from exonerate using 'parsable' preset"""
+def extract_alnsummary(rawaln):
+    """Return alnsummary line from rawaln."""
+    for line in rawaln.split('\n'):
+        if line.startswith('aln_summary'):
+            return line
+    raise ValueError, "did not find aln_summary line in alignment"
+
+def extract_vulgar(rawaln):
+    """Return vulgar line from rawaln."""
+    for line in rawaln.split('\n'):
+        if line.startswith('vulgar'):
+            return line
+    raise ValueError, "did not find vulgar line in alignment"
+
+def parse_alnsummary(rawaln):
+    """Parse alignment from exonerate using 'parsable' preset.
+    
+    Takes an alignment that can include multiple lines, as long as one of them
+    is an aln_summary line generated from ryo 'parsable' preset.
+    """
+    
+    # find parsable line
+    alnsummary = extract_alnsummary(rawaln)
     
     # 'aln_summary: %qi %ql %qab %qae %qS %ti %tl %tab %tae %tS %s %et %ei %pi\n'
-    data = rawaln.split()
+    data = alnsummary.split()
     
     aln = {}
     aln['query_id']         = data[1]
@@ -261,3 +300,83 @@ def parse_aln(rawaln):
     aln['percent_id']       = float(data[14])
     
     return aln
+
+def parse_vulgar(rawaln):
+    """Parse vulgar line from raw alignment
+    
+    Can take multiple line alignment and searches for vulgar line
+    
+    returns only the non-sugar part that allows you to build the aln
+    """
+    vulgar = extract_vulgar(rawaln)
+    
+    data = vulgar.split()[10:]
+    cmds = []
+    for i in range(0,len(data),3):
+        cmds.append( (data[0],int(data[1]),int(data[2])) )
+    return cmds
+
+def build_aln(rawaln,queryname,query,targetname,target):
+    """Build full alignment from exonerate using 'parsable' preset and vulgar output"""
+    
+    # parse alignment
+    alnsummary = parse_alnsummary(rawaln)
+    commands = parse_vulgar(rawaln)
+    
+    # process strands. the position vars below will always progress
+    # from 0->len(seq), so the seqs must be revcomped accordingly
+    
+    queryseq  = query
+    targetseq = target
+    queryposition  = alnsummary['query_aln_begin']
+    targetposition = alnsummary['target_aln_begin']
+    if alnsummary['query_strand'] == '-':
+        queryseq = seqtools.reverse_complement(queryseq)
+        queryposition = len(queryseq) - queryposition
+    if alnsummary['target_strand'] == '-':
+        targetseq = seqtools.reverse_complement(targetseq)
+        targetposition = len(targetseq) - targetposition
+    pad = abs(queryposition - targetposition)
+    
+    # build alignment
+    queryaln  = ''
+    targetaln = ''
+    
+    # process necessary padding
+    if queryposition > targetposition:
+        targetaln = ' ' * pad
+    else:
+        queryaln  = ' ' * pad
+    
+    # add pre-aln sequence
+    queryaln  += queryseq[0:queryposition]
+    targetaln += targetseq[0:targetposition]
+    
+    # walk through alignment (from vulgar output)
+    for cmd in commands:
+        if cmd[0] == 'M':
+            assert(cmd[1]==cmd[2])
+            queryaln  += queryseq[queryposition:queryposition+cmd[1]]
+            targetaln += targetseq[targetposition:targetposition+cmd[2]]
+            queryposition  += cmd[1]
+            targetposition += cmd[2]
+        elif cmd[0] == 'G':
+            assert( (cmd[1]==0) != (cmd[1]==0) )    # xor
+            if cmd[1] == 0:
+                queryaddendum = '-' * cmd[2]
+                targetaddendum = targetseq[targetposition:targetposition+cmd[2]]
+            elif cmd[2] == 0:
+                queryaddendum = queryseq[queryposition:queryposition+cmd[1]]
+                targetaddendum = '-' * cmd[1]
+            queryaln  += queryaddendum
+            targetaln += targetaddendum
+            queryposition  += cmd[1]
+            targetposition += cmd[2]
+        else:
+            raise ValueError, "I do not understand the vulgar command %s" % cmd[0]
+   
+    # add any post-aln sequence
+    queryaln  += queryseq[queryposition:]
+    targetaln += targetseq[targetposition:]
+    
+    return (queryaln,targetaln)

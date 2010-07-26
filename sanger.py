@@ -29,6 +29,12 @@ def trimleft(left,read):
     if aln['query_len'] != aln['query_aln_end']:
         raise ValueError, "failed to align right-end of left sequence"
     
+    # check that both strands are + orientation
+    if aln['query_strand'] != '+':
+        raise ValueError, "query strand has been reversed"
+    if aln['target_strand'] != '+':
+        raise ValueError, "target strand has been reversed"
+    
     # return trimmed sequence
     return read[aln['target_aln_end']:]
 
@@ -43,13 +49,17 @@ def trimright(right,read):
     # perform alignment
     cmd = exonerate.ExonerateCommand('findend','parsable','bestonly')
     rawaln = exonerate.run_exonerate2(cmd,right,read)
-    print rawaln
     aln = exonerate.parse_aln(rawaln)
-    print aln
     
     # check that the left-end of right was successfully placed
     if aln['query_aln_begin'] != 0:
         raise ValueError, "failed to align left-end of right sequence"
+    
+    # check that both strands are + orientation
+    if aln['query_strand'] != '+':
+        raise ValueError, "query strand has been reversed"
+    if aln['target_strand'] != '+':
+        raise ValueError, "target strand has been reversed"
     
     # return trimmed sequence
     return read[:aln['target_aln_begin']]

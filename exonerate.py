@@ -102,6 +102,10 @@ class ExonerateCommand(object):
             'bestonly' : self.preset_bestonly
         }
         
+        # these attributes must be handled special, and set manually at the start
+        self.options = {}
+        self.ryo = None
+        
         # first execute any registered functions
         for a in args:
             self.register[a]()
@@ -110,13 +114,13 @@ class ExonerateCommand(object):
         if kw.has_key('ryo'): self.ryo = kw.pop('ryo')
         
         # then set all the manual options supplied
-        self.options = kw
+        self.options.update(kw)
         
         # set standard options in case they weren't given initially
         # they can still be overwritten
         self.softset_default()
         
-        return self
+        # return self
     
     def __setattr__(self,name,value):
         """Allows setting of options by acting on object attributes.
@@ -138,7 +142,7 @@ class ExonerateCommand(object):
         if name in ExonerateCommand.options_list:
             return self.options[name]
         else:
-            return object.__getattr__(self,name)
+            raise AttributeError
     
     def build_command(self):
         self.cmd = 'exonerate'
@@ -149,7 +153,7 @@ class ExonerateCommand(object):
         if self.ryo is not None:
             self.cmd += r' --%s "%s"' % ('ryo',self.ryo)
         
-        return cmd
+        return self.cmd
     
     def softset_default(self):
         """Conditionally override options to a reasonable default."""
@@ -213,24 +217,24 @@ def run_exonerate2(cmd,query,target):
     # TODO: see if this can be implemented without writing to temporary files
     
     # write seqs to tempfiles
-    (fdq,query) = tempfile.mkstemp()
-    (fdt,target) = tempfile.mkstemp()
-    iopq = open(query,'w')
-    iopt = open(target,'w')
-    print >>iopq, ">left\n%s\n" % left
-    print >>iopt, ">right\n%s\n" % right
+    (fdq,queryfile) = tempfile.mkstemp()
+    (fdt,targetfile) = tempfile.mkstemp()
+    iopq = open(queryfile,'w')
+    iopt = open(targetfile,'w')
+    print >>iopq, ">query\n%s\n" % query
+    print >>iopt, ">target\n%s\n" % target
     iopq.close()
     iopt.close()
     
     try:
         # perform alignment
-        cmd.query = query
-        cmd.target = target
+        cmd.query = queryfile
+        cmd.target = targetfile
         aln = run_exonerate(cmd)
     finally:
         # clean up
-        os.remove(query)
-        os.remove(target)
+        os.remove(queryfile)
+        os.remove(targetfile)
     
     return aln
 

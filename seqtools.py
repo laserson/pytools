@@ -88,3 +88,15 @@ def get_string(seqobj):
     elif isinstance(seqobj,str):
         seq = seqobj.upper()
     return seq
+
+def get_features(feature_list,feature_type):
+    target_features = []
+    for feature in feature_list:
+        if feature.type == feature_type:
+            target_features.append(feature)
+    return target_features
+
+def advance_to_feature(feature_iter,feature_type):
+    for feature in feature_iter:
+        if feature.type == feature_type:
+            return feature

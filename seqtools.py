@@ -96,7 +96,12 @@ def get_features(feature_list,feature_type):
             target_features.append(feature)
     return target_features
 
-def advance_to_feature(feature_iter,feature_type):
+def advance_to_features(feature_iter,feature_types):
+    # note, here feature_types is a list of possible stopping points
     for feature in feature_iter:
-        if feature.type == feature_type:
+        if feature.type in feature_types:
             return feature
+    raise ValueError, "didn't find %s in record" % feature_types
+
+def advance_to_feature(feature_iter,feature_type):
+    return advance_to_features(feature_iter,[feature_type])

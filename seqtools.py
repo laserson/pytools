@@ -47,6 +47,13 @@ def cleanup_id(identifier):
     return identifier.translate(cleanup_table)
 
 
+def seqhist(seqlist):
+    seqdict = dict()
+    for seq in seqlist:
+        seqdict[seq] = seqdict.get(seq,0) + 1
+    return seqdict
+
+
 # ==========================
 # = Manual FASTA iteration =
 # ==========================

@@ -7,7 +7,7 @@ Functions for stats and analysis of count data.
 
 import numpy as np
 import scipy as sp
-import scipy.stats
+# import scipy.stats
 
 # ==============================================================================
 

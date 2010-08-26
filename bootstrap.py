@@ -8,7 +8,7 @@
 
 import numpy as np
 
-numpy.random.seed()
+np.random.seed()
 # numpy.random.seed(1)
 
 permutation = np.random.permutation
@@ -22,7 +22,12 @@ def permsamp(x, nperm, theta):
        returns a vector of nperm th_star values
     '''
     N = len(x)
-    th_star = np.asarray( map(theta,x[permutation(N)]) )
+    
+    def perm_iter():
+        for i in xrange(nperm):
+            yield x[permutation(N)]
+    
+    th_star = np.asarray( map(theta,perm_iter()) )
     
     # th_star = numpy.zeros(nperm)
     # for i in xrange(nperm):

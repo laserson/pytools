@@ -11,6 +11,13 @@ def number_genome_qblast_hits(seqreclist):
     
     return hits
 
+def number_genome_qblast_protein_hits(sequence):
+    results_handle = NCBIWWW.qblast('blastp','nr',sequence,expect=100,word_size=3,hitlist_size=1000)
+    blast_records = NCBIXML.parse(results_handle)
+    num_hits = sum([len(record.alignments) for record in blast_records])
+    return num_hits
+    
+
 
 # def number_genome_qblast_hits(seqlist):
 #     fastastring = ''

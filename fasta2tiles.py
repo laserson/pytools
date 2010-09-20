@@ -3,9 +3,12 @@
 import sys
 import optparse
 
+import blast
+
 parser = optparse.OptionParser()
 parser.add_option('-s','--size',type='int')
 parser.add_option('-o','--offset',type='int')
+parser.add_option('-p','--blastp',action='store_true')
 (options, args) = parser.parse_args()
 
 if len(args) == 2:
@@ -56,11 +59,22 @@ tile_offset = options.offset
 
 for (descr,seq) in fasta_parser(inhandle):
     pos = 0
-    num = 0
+    num = 1
     while pos < len(seq):
         if pos+tile_size >= len(seq):    # last tile in seq
-            print >>outhandle, '>%s|tile%03i\n%s' % (descr,num,seq[-tile_size:])
+            tile = seq[-tile_size:]
+            start = len(seq) - tile_size
+            end = len(seq)
         else:
-            print >>outhandle, '>%s|tile%03i\n%s' % (descr,num,seq[pos:pos+tile_size])
+            tile = seq[pos:pos+tile_size]
+            start = pos
+            end = pos+tile_size
+        
+        if options.blastp == True:
+            num_hits = blast.number_genome_qblast_protein_hits(tile)
+            print >>outhandle, '>%s|tile%03i|%i|%i|%i\n%s' % (descr,num,start,end,num_hits,tile)
+        else:
+            print >>outhandle, '>%s|tile%03i|%i|%i\n%s' % (descr,num,start,end,tile)
+        
         pos += tile_offset
         num += 1

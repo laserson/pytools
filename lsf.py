@@ -1,9 +1,6 @@
-import tempfile
+import os
 import subprocess
 import time
-import math
-
-import vdj
 
 # ===================
 # = LSF Dispatching =
@@ -20,19 +17,48 @@ def submit_to_LSF(queue,LSFopfile,cmd_to_submit,mem_usage=None):
     #p.wait()
     return p.stdout.read().split('<')[1].split('>')[0]
 
-
-def wait_for_LSF_jobs(PIDs,interval=30):
+def parse_LSF_report(filename):
+    jobID = -1
     finished = False
-    while not finished:
-        time.sleep(interval)
-        p = subprocess.Popen('bjobs',shell=True,stdout=subprocess.PIPE)
-        #p.wait()
-        status = p.stdout.read().split('\n')
-        if status[0].split()[0] != 'JOBID':
-            finished = False
-            continue
-        runningprocesses = [line.split()[0] for line in status if line.split() != [] and line.split()[0] != 'JOBID']
-        finished = True
-        for pid in PIDs:
-            if pid in runningprocesses:
-                finished = False
+    succeeded = False
+    
+    ip = open(filename)
+    for line in ip:
+        if line.startswith('Subject:') and 'Job' in line:
+            jobID = line.split()[2].rstrip(':')
+            if 'Done' in line:
+                finished = True
+        if 'Successfully completed.' in line:
+            succeeded = True
+    ip.close()
+    
+    return (jobID,finished,succeeded)
+
+def wait_for_LSF_jobs(jobIDs,logfiles,interval=120):
+    while len(jobIDs) > 0:
+        time.sleep(interval)        
+        # parse logfiles to see which jobs finished in the interim
+        for logfile in logfiles:
+            if not os.path.exists(logfile): # (job not finished)
+                continue
+            (jobID,finished,succeeded) = parse_LSF_report(logfile)
+            if jobID != -1 and finished and succeeded:
+                jobIDs.remove(jobID)
+                logfiles.remove(logfile)
+
+# DEPRECATED: USES bjobs TO TEST FOR JOB COMPLETION
+# def wait_for_LSF_jobs(PIDs,interval=30):
+#     finished = False
+#     while not finished:
+#         time.sleep(interval)
+#         p = subprocess.Popen('bjobs',shell=True,stdout=subprocess.PIPE)
+#         #p.wait()
+#         status = p.stdout.read().split('\n')
+#         if status[0].split()[0] != 'JOBID':
+#             finished = False
+#             continue
+#         runningprocesses = [line.split()[0] for line in status if line.split() != [] and line.split()[0] != 'JOBID']
+#         finished = True
+#         for pid in PIDs:
+#             if pid in runningprocesses:
+#                 finished = False

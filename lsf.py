@@ -45,6 +45,8 @@ def wait_for_LSF_jobs(jobIDs,logfiles,interval=120):
             if jobID != -1 and finished and succeeded:
                 jobIDs.remove(jobID)
                 logfiles.remove(logfile)
+            elif jobID != -1 and finished and not succeeded:
+                raise ValueError, "Job %s failed" % jobID
 
 # DEPRECATED: USES bjobs TO TEST FOR JOB COMPLETION
 # def wait_for_LSF_jobs(PIDs,interval=30):

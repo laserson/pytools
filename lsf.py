@@ -7,6 +7,8 @@ import time
 # ===================
 
 def submit_to_LSF(queue,LSFopfile,cmd_to_submit,mem_usage=None):
+    # wrap command to submit in quotations
+    cmd_to_submit = r'"%s"' % cmd_to_submit.strip(r'"')
     LSF_params = {'LSFoutput':LSFopfile,
                       'queue':queue}
     LSF_cmd = 'bsub -q%(queue)s -o%(LSFoutput)s' % LSF_params

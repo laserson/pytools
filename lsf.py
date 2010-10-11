@@ -28,7 +28,7 @@ def parse_LSF_report(filename):
     for line in ip:
         if line.startswith('Subject:') and 'Job' in line:
             jobID = line.split()[2].rstrip(':')
-            if 'Done' in line:
+            if 'Done' in line or 'Exited' in line:
                 finished = True
         if 'Successfully completed.' in line:
             succeeded = True

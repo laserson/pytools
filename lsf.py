@@ -37,8 +37,6 @@ def parse_LSF_report(filename):
     return (jobID,finished,succeeded)
 
 def wait_for_LSF_jobs(jobIDs,logfiles,interval=120):
-    # DEBUG
-    print jobIDs
     while len(jobIDs) > 0:
         time.sleep(interval)        
         # parse logfiles to see which jobs finished in the interim
@@ -47,8 +45,6 @@ def wait_for_LSF_jobs(jobIDs,logfiles,interval=120):
                 continue
             (jobID,finished,succeeded) = parse_LSF_report(logfile)
             if jobID != -1 and finished and succeeded:
-                #DEBUG
-                print jobID
                 jobIDs.remove(jobID)
                 logfiles.remove(logfile)
             elif jobID != -1 and finished and not succeeded:

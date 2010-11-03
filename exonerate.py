@@ -256,32 +256,38 @@ def run_exonerate2(cmd,query,target,queryname='query',targetname='target',debug=
     
     return aln
 
-def extract_alnsummary(rawaln):
+def iter_alnsummary(rawaln):
     """Return alnsummary line from rawaln."""
     for line in rawaln.split('\n'):
         if line.startswith('aln_summary'):
-            return line
-    raise ValueError, "did not find aln_summary line in alignment"
+            yield line
 
-def extract_vulgar(rawaln):
+def extract_alnsummary(rawaln):
+    """Return alnsummary line from rawaln."""
+    return iter_alnsummary(rawaln).next()
+
+def iter_vulgar(rawaln):
     """Return vulgar line from rawaln."""
     for line in rawaln.split('\n'):
         if line.startswith('vulgar'):
-            return line
-    raise ValueError, "did not find vulgar line in alignment"
+            yield line
 
-def parse_alnsummary(rawaln):
+def extract_vulgar(rawaln):
+    """Return vulgar line from rawaln."""
+    return iter_vulgar(rawaln).next()
+
+def iter_alnsummary_vulgar(rawaln):
+    for (alnsummary,vulgar_commands) in zip(iter_alnsummary(rawaln),iter_vulgar(rawaln)):
+        yield (alnsummary,vulgar_commands)
+
+def parse_alnsummary(rawalnsummary):
     """Parse alignment from exonerate using 'parsable' preset.
     
-    Takes an alignment that can include multiple lines, as long as one of them
-    is an aln_summary line generated from ryo 'parsable' preset.
+    Takes an alnsummary line from an alignment that was generated from an ryo
+    'parsable' preset.
     """
-    
-    # find parsable line
-    alnsummary = extract_alnsummary(rawaln)
-    
     # 'aln_summary: %qi %ql %qab %qae %qS %ti %tl %tab %tae %tS %s %et %ei %pi\n'
-    data = alnsummary.split()
+    data = rawalnsummary.split()
     
     aln = {}
     aln['query_id']         = data[1]
@@ -301,33 +307,28 @@ def parse_alnsummary(rawaln):
     
     return aln
 
-def parse_vulgar(rawaln):
-    """Parse vulgar line from raw alignment
+def parse_vulgar(rawvulgar):
+    """Parse vulgar line
     
-    Can take multiple line alignment and searches for vulgar line
+    Takes vulgar line from alignment output
     
     returns only the non-sugar part that allows you to build the aln
     """
-    vulgar = extract_vulgar(rawaln)
-    
-    data = vulgar.split()[10:]
+    data = rawvulgar.split()[10:]
     cmds = []
     for i in range(0,len(data),3):
         cmds.append( (data[0],int(data[1]),int(data[2])) )
     return cmds
 
-def build_aln(rawaln,queryname,query,targetname,target):
+def build_aln(alnsummary,vulgar_commands,queryseq,targetseq):
     """Build full alignment from exonerate using 'parsable' preset and vulgar output"""
     
-    # parse alignment
-    alnsummary = parse_alnsummary(rawaln)
-    commands = parse_vulgar(rawaln)
+    queryname = alnsummary['query_id']
+    targetname = alnsummary['target_id']
     
     # process strands. the position vars below will always progress
     # from 0->len(seq), so the seqs must be revcomped accordingly
     
-    queryseq  = query
-    targetseq = target
     queryposition  = alnsummary['query_aln_begin']
     targetposition = alnsummary['target_aln_begin']
     if alnsummary['query_strand'] == '-':
@@ -353,7 +354,7 @@ def build_aln(rawaln,queryname,query,targetname,target):
     targetaln += targetseq[0:targetposition]
     
     # walk through alignment (from vulgar output)
-    for cmd in commands:
+    for cmd in vulgar_commands:
         if cmd[0] == 'M':
             assert(cmd[1]==cmd[2])
             queryaln  += queryseq[queryposition:queryposition+cmd[1]]

@@ -50,7 +50,7 @@ def qPCR2melting(inputfile,output_formats):
     ax = fig.add_subplot(111)
     for (label,curve) in zip(curve_labels,curves):
         ax.plot(temps,curve,label=label)
-    ax.legend(loc=1)
+    ax.legend(loc=2)
     ax.set_xlabel('Temperature')
     ax.set_ylabel('Fluorescence (a.u.)')
     for format in output_formats:

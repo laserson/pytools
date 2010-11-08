@@ -41,7 +41,7 @@ timeseriesmatrix = np.asarray(timeseriesmatrix)
 if options.normalize:
     timeseriesmatrix = np.float_(timeseriesmatrix) / timeseriesmatrix.sum(axis=0)
 
-# define which idxs to plot
+# define which time series to plot
 if options.threshold:
     idxs = np.sum(timeseriesmatrix>=options.threshold,axis=1)>0 # breaks threshold at least once
 else:
@@ -87,11 +87,10 @@ ax.set_ylabel(options.quantify+' frequency')
 fig.savefig(outbasename+'.%stimeseries.png' % options.quantify)
 fig.savefig(outbasename+'.%stimeseries.pdf' % options.quantify)
 
-# # only stuff that's positive everywhere
-segments = [np.asarray(zip(times,freqs)) for freqs in freqmatrix[idxs]]
-segments = [segment[segment[:,1]>0] for segment in segments if segment[:,1].sum()>0]
-lines = mpl.collections.LineCollection(segments,colors=colors,linewidths=0.5)
-lines.set_alpha(0.75)
+# segments = [np.asarray(zip(times,timeseries)) for timeseries in timeseriesmatrix[idxs]]
+# segments = [segment[segment[:,1]>0] for segment in segments if segment[:,1].sum()>0]
+# lines = mpl.collections.LineCollection(segments,colors=colors,linewidths=0.5)
+# lines.set_alpha(0.75)
 
 figlog = plt.figure()
 ax = figlog.add_subplot(111)

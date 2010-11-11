@@ -281,7 +281,7 @@ def iter_alnsummary_vulgar(rawaln):
         yield (alnsummary,vulgar_commands)
 
 def parse_alnsummary(rawalnsummary):
-    """Parse alignment from exonerate using 'parsable' preset.
+    """Parse alnsummary line from exonerate using 'parsable' preset.
     
     Takes an alnsummary line from an alignment that was generated from an ryo
     'parsable' preset.
@@ -306,6 +306,21 @@ def parse_alnsummary(rawalnsummary):
     aln['percent_id']       = float(data[14])
     
     return aln
+
+def parse_aln(rawaln):
+    """Parse raw alignment from exonerate using 'parsable' preset.
+    
+    Takes a raw alignment and searches for an alnsummary line (generated from
+    an ryo 'parsable' preset) and parses it.
+    """
+    for line in rawaln.split('\n'):
+        if line.strip().startswith('aln_summary'):
+            rawalnsummary = line.strip()
+            break
+    else:
+        raise ValueError, "aln_summary line not found in raw aln:\n%s" % rawaln
+    
+    return parse_alnsummary(rawalnsummary)
 
 def parse_vulgar(rawvulgar):
     """Parse vulgar line

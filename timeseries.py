@@ -17,3 +17,11 @@ def load_timeseries(inhandle):
     timeseriesmatrix = np.asarray(timeseriesmatrix)
     
     return (labels,times,timeseriesmatrix)
+
+def write_timeseries(outhandle,labels,times,timeseriesmatrix):
+    print >>outhandle, '#times ' + ' '.join(map(str,times))
+    for (label,timeseries) in zip(labels,timeseriesmatrix):
+        print >>outhandle, ' '.join(map(str,[label]+list(timeseries)))
+
+def normalized_timeseries(timeseries):
+    return np.float_(timeseries) / timeseries.sum(axis=0)

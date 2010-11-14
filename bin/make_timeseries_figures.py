@@ -14,6 +14,7 @@ import vdj.analysis
 option_parser = optparse.OptionParser()
 option_parser.add_option('-r','--threshold',type='float')
 option_parser.add_option('-o','--outputbasename')
+option_parser.add_option('-q','--quantify')
 option_parser.add_option('-n','--normalize',action='store_true')
 (options,args) = option_parser.parse_args()
 

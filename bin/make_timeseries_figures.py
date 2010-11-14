@@ -85,8 +85,8 @@ ax.autoscale_view(scalex=False,scaley=True)
 ax.set_xlabel('time')
 ax.set_ylabel(options.quantify+' frequency')
 # fig.show()
-fig.savefig(outbasename+'.%stimeseries.png' % options.quantify)
-fig.savefig(outbasename+'.%stimeseries.pdf' % options.quantify)
+fig.savefig(outputbasename+'.%stimeseries.png' % options.quantify)
+fig.savefig(outputbasename+'.%stimeseries.pdf' % options.quantify)
 
 # segments = [np.asarray(zip(times,timeseries)) for timeseries in timeseriesmatrix[idxs]]
 # segments = [segment[segment[:,1]>0] for segment in segments if segment[:,1].sum()>0]
@@ -108,5 +108,5 @@ ax.set_xlim([times.min(),times.max()])
 ax.set_xlabel('time')
 ax.set_ylabel(options.quantify+' frequency')
 # fig.show()
-figlog.savefig(outbasename+'.%stimeseries.log.png' % options.quantify)
-figlog.savefig(outbasename+'.%stimeseries.log.pdf' % options.quantify)
+figlog.savefig(outputbasename+'.%stimeseries.log.png' % options.quantify)
+figlog.savefig(outputbasename+'.%stimeseries.log.pdf' % options.quantify)

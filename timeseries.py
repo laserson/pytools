@@ -48,7 +48,7 @@ def write_timeseries(outhandle,**kw):
     labels = kw.pop('labels')
     matrix = kw.pop('matrix')
     for (key,values) in kw.iteritems():
-        print >>outhandle, '#%s' % key + ' '.join(map(str,values))
+        print >>outhandle, '#%s ' % key + ' '.join(map(str,values))
     for (label,timeseries) in zip(labels,matrix):
         print >>outhandle, ' '.join(map(str,[label]+list(timeseries)))
 

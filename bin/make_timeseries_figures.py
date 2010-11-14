@@ -42,7 +42,7 @@ if options.normalize:
 if options.threshold:
     idxs = np.sum(timeseriesmatrix>=options.threshold,axis=1)>0 # breaks threshold at least once
 else:
-    idxs = [True]*timeseriesmatrix.shape[0]
+    idxs = np.asarray([True]*timeseriesmatrix.shape[0])
 # idxs = np.sum(time_series_freqs>0,axis=1)>2 # seen at least twice
 # idxs_bool = np.logical_and(idxs_bool_1,idxs_bool_2)
 # idxs_bool = np.array([False]*len(reference_clones))

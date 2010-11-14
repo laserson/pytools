@@ -10,6 +10,7 @@ import matplotlib.collections
 
 import vdj
 import vdj.analysis
+import timeseries
 
 option_parser = optparse.OptionParser()
 option_parser.add_option('-r','--threshold',type='float')
@@ -23,24 +24,19 @@ if len(args) == 1:
 else:
     raise ValueError, "Must give a single argument to vdjxml file"
 
-# read in times
-for line in inhandle:
-    if line.startswith('#times'):
-        times = np.asarray(map(float,line.split()[1:]))
-        break
+data = timeseries.load_timeseries(inhandle)
+labels = data['labels']
+times = data['times']
+timeseriesmatrix = data['matrix']
 
-# read in data
-labels = []
-timeseriesmatrix = []
-for line in inhandle:
-    data = line.split()
-    labels.append(data[0].strip())
-    timeseriesmatrix.append(map(int,data[1:]))
-timeseriesmatrix = np.asarray(timeseriesmatrix)
+try:
+    sums = data['sums']
+except KeyError:
+    sums = timeseriesmatrix.sum(axis=0)
 
 # normalize if desired
 if options.normalize:
-    timeseriesmatrix = np.float_(timeseriesmatrix) / timeseriesmatrix.sum(axis=0)
+    timeseriesmatrix = np.float_(timeseriesmatrix) / np.asarray(sums)
 
 # define which time series to plot
 if options.threshold:

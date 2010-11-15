@@ -53,6 +53,10 @@ def seqhist(seqlist):
         seqdict[seq] = seqdict.get(seq,0) + 1
     return seqdict
 
+def seqmode(seqs):
+    if isinstance(seqs,list):
+        seqs = seqhist(seqs)
+    return max(seqs.iterkeys(),key=lambda k: seqs[k])
 
 # ==========================
 # = Manual FASTA iteration =

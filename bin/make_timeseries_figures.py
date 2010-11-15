@@ -22,7 +22,7 @@ option_parser.add_option('-n','--normalize',action='store_true')
 if len(args) == 1:
     inhandle = open(args[0],'r')
 else:
-    raise ValueError, "Must give a single argument to vdjxml file"
+    raise ValueError, "Must give a single argument that is a timeseries data file"
 
 data = timeseries.load_timeseries(inhandle)
 labels = data['labels']

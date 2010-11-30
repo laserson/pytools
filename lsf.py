@@ -30,6 +30,8 @@ def parse_LSF_report(filename):
             jobID = line.split()[2].rstrip(':')
             if 'Done' in line or 'Exited' in line:
                 finished = True
+        if 'TERM_REQUEUE_ADMIN' in line:    # for when rbsub requeues
+            finished = False
         if 'Successfully completed.' in line:
             succeeded = True
     ip.close()

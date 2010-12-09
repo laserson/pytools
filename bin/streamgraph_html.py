@@ -1,4 +1,3 @@
-test = r"""hello %s"""
 streamgraph_html = r"""
 <html>
     <head>
@@ -33,7 +32,7 @@ streamgraph_html = r"""
             var w = document.body.clientWidth,
                 h = document.body.clientHeight,
                 x = pv.Scale.linear(pv.min(times), pv.max(times)).range(0, w),
-                y = pv.Scale.linear(0, 2).range(0, h);
+                y = pv.Scale.linear(0, times.length).range(0, h);
             
             function norm_weight(v) {
                 sum = 0;

@@ -1,8 +1,49 @@
 import collections
 
+def raiseKeyError():
+    raise KeyError
+
 class nesteddict(collections.defaultdict):
+    """Nested dictionary structure.
+    
+    Based on Stack Overflow question 635483
+    """
     def __init__(self):
-        defaultdict.__init__(self, nesteddict)
+        collections.defaultdict.__init__(self, nesteddict)
+        self.locked = False
+    
+    def lock(self):
+        self.default_factory = raiseKeyError
+        self.locked = True
+    
+    def unlock(self):
+        self.default_factory = nesteddict
+        self.locked = False
+    
+    def islocked(self):
+        return self.locked
+    
+    def nested_setdefault(self,keylist,default):
+        curr_dict = self
+        for key in keylist[:-1]:
+            curr_dict = curr_dict[key]
+        key = keylist[-1]
+        return curr_dict.setdefault(key,default)
+    
+    def nested_get(self,keylist,default):
+        curr_dict = self
+        for key in keylist[:-1]:
+            curr_dict = curr_dict[key]
+        key = keylist[-1]
+        return curr_dict.get(key,default)
+    
+    def nested_assign(self,keylist,val):
+        curr_dict = self
+        for key in keylist[:-1]:
+            curr_dict = curr_dict[key]
+        key = keylist[-1]
+        curr_dict[key] = val
+        return self
     
     def walk(self):
         for (key,value) in self.iteritems():
@@ -11,6 +52,37 @@ class nesteddict(collections.defaultdict):
                     yield (key,) + tup
             else:
                 yield (key,value)
+    
+    # these functions below implement special cases of nesteddict, where the
+    # deepest-level dict is of a particular type (e.g., int for counter, set
+    # for uniq objects, etc.)
+    # 
+    # These functions could be implemented with nested_setdefault and
+    # nested_get, but would be less efficient since they would have to
+    # traverse the dict structure more times.
+    
+    def nested_increment(self,keylist,increment=1):
+        curr_dict = self
+        for key in keylist[:-1]:
+            curr_dict = curr_dict[key]
+        key = keylist[-1]
+        curr_dict[key] = curr_dict.get(key,0) + increment
+        return self
+    
+    def nested_add(self,keylist,obj):
+        curr_dict = self
+        for key in keylist[:-1]:
+            curr_dict = curr_dict[key]
+        key = keylist[-1]
+        curr_dict.set_default(key,set()).add(obj)
+        return self
+
+
+
+
+
+
+
 
 
 # class ModuleWrapper(object):

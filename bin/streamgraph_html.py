@@ -29,10 +29,12 @@ streamgraph_html = r"""
             matrix.sort(function(a,b) (first_nonzero_index(a)-first_nonzero_index(b)))
             
             // Define some parameters for the visualization
-            var w = document.body.clientWidth,
-                h = document.body.clientHeight,
-                x = pv.Scale.linear(pv.min(times), pv.max(times)).range(0, w),
-                y = pv.Scale.linear(0, 3).range(0, h);
+            var frame_w = document.body.clientWidth,
+                frame_h = document.body.clientHeight,
+                vis_w = frame_w - 50
+                vis_h = frame_h - 100
+                x = pv.Scale.linear(pv.min(times), pv.max(times)).range(0, vis_w),
+                y = pv.Scale.linear(0,1).range(0, vis_h);
             
             function norm_weight(v) {
                 sum = 0;
@@ -55,10 +57,16 @@ streamgraph_html = r"""
             }
             
             // Start the visualization
-            var vis = new pv.Panel()
-                .width(w)
-                .height(h)
-                .margin(10);
+            var frame = new pv.Panel()
+                .width(frame_w)
+                .height(frame_h);
+                // .strokeStyle("#000")
+            
+            vis = frame.add(pv.Panel)
+                .width(vis_w)
+                .height(vis_h)
+                .left((frame_w - vis_w) / 2.0);
+                // .strokeStyle("#000")
             
             vis.add(pv.Layout.Stack)
                 .layers(matrix)
@@ -67,10 +75,17 @@ streamgraph_html = r"""
                 .x(function() x(times[this.index]))
                 .y(function(d) y(d/sums[this.index]))
               .layer.add(pv.Area)
-                .fillStyle(function(d,p) color_picker(p))
+                .fillStyle(function(d,p) color_picker(p));
                 // .interpolate("basis")    // makes it pretty
-    
-            vis.add(pv.Rule)
+            
+            // Panel with time ticks
+            vis.add(pv.Panel)
+                .width(vis_w)
+                .height(100)
+                .left(0)
+                .bottom(50)    // Adjust here to move time ticks up/down
+                // .strokeStyle("#000")
+              .add(pv.Rule)
                 .data(times)
                 // .visible(function(d) d)
                 .left(x)
@@ -82,11 +97,17 @@ streamgraph_html = r"""
                   .left(function(d) x(d)-8)
                   .height(20)
                   .width(16)
-                  .fillStyle(function() pv.color("hsl("+Hscale(this.index)+",100%%,50%%)"));
+                  .fillStyle(function() pv.color("hsl("+Hscale(this.index)+",100%,50%)"));
             
-            vis.render();
+            // vis.add(pv.Rule)
+            //     .data(y.ticks())
+            //     .bottom(y)
+            //   .anchor('left').add(pv.Label)
+            //     .text(y.tickFormat);
+            
+            frame.render();
     
-            document.getElementById("svgoutput").value = vis.scene[0].canvas.innerHTML
+            document.getElementById("svgoutput").value = vis.scene[0].canvas.innerHTML;
     
     
         </script>

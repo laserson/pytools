@@ -15,10 +15,16 @@ class nesteddict(collections.defaultdict):
     def lock(self):
         self.default_factory = raiseKeyError
         self.locked = True
+        for value in self.itervalues():
+            if isinstance(value, nesteddict):
+                value.lock()
     
     def unlock(self):
         self.default_factory = nesteddict
         self.locked = False
+        for value in self.itervalues():
+            if isinstance(value, nesteddict):
+                value.unlock()
     
     def islocked(self):
         return self.locked

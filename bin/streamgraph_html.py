@@ -97,7 +97,7 @@ streamgraph_html = r"""
                   .left(function(d) x(d)-8)
                   .height(20)
                   .width(16)
-                  .fillStyle(function() pv.color("hsl("+Hscale(this.index)+",100%,50%)"));
+                  .fillStyle(function() pv.color("hsl("+Hscale(this.index)+",100%%,50%%)"));
             
             // vis.add(pv.Rule)
             //     .data(y.ticks())

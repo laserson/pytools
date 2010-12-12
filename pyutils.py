@@ -74,7 +74,7 @@ class nesteddict(collections.defaultdict):
         for key in keylist[:-1]:
             curr_dict = curr_dict[key]
         key = keylist[-1]
-        curr_dict.set_default(key,set()).add(obj)
+        curr_dict.setdefault(key,set()).add(obj)
         return self
 
 

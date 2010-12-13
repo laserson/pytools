@@ -106,7 +106,7 @@ streamgraph_html = r"""
             
             frame.render();
     
-            document.getElementById("svgoutput").value = vis.scene[0].canvas.innerHTML;
+            document.getElementById("svgoutput").value = frame.scene[0].canvas.innerHTML;
     
     
         </script>

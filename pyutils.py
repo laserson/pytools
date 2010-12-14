@@ -1,3 +1,4 @@
+import copy
 import collections
 
 def raiseKeyError():
@@ -8,8 +9,11 @@ class nesteddict(collections.defaultdict):
     
     Based on Stack Overflow question 635483
     """
-    def __init__(self):
-        collections.defaultdict.__init__(self, nesteddict)
+    def __init__(self,default=None):
+        if default == None:
+            collections.defaultdict.__init__(self, nesteddict)
+        else:
+            collections.defaultdict.__init__(self, default)
         self.locked = False
     
     def lock(self):
@@ -28,6 +32,22 @@ class nesteddict(collections.defaultdict):
     
     def islocked(self):
         return self.locked
+    
+    def todict(self):
+        raise NotImplementedError
+        for (key,val) in self.iteritems():
+            if isinstance(val,nesteddict):
+                val.todict()
+                self[key] = dict(val)
+        self = dict(self)
+    
+    @staticmethod
+    def asdict(d):
+        d = copy.deepcopy(d)
+        for (key,val) in d.iteritems():
+            if isinstance(val,nesteddict):
+                d[key] = nesteddict.asdict(val)
+        return dict(d)
     
     def nested_setdefault(self,keylist,default):
         curr_dict = self

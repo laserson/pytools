@@ -8,8 +8,8 @@ class nesteddict(collections.defaultdict):
     
     Based on Stack Overflow question 635483
     """
-    def __init__(self,default=nesteddict):
-        collections.defaultdict.__init__(self, default)
+    def __init__(self):
+        collections.defaultdict.__init__(self, nesteddict)
         self.locked = False
     
     def lock(self):

@@ -3,7 +3,6 @@ streamgraph_html = r"""
     <head>
         <title>Visualization</title>
         <script type="text/javascript" src="../protovis-r3.2.js"></script>
-        <script type="text/javascript" src=""></script>
     </head>
 
     <body>
@@ -83,7 +82,7 @@ streamgraph_html = r"""
                 .width(vis_w)
                 .height(100)
                 .left(0)
-                .bottom(50)    // Adjust here to move time ticks up/down
+                .bottom(-100)    // Adjust here to move time ticks up/down
                 // .strokeStyle("#000")
               .add(pv.Rule)
                 .data(times)
@@ -97,7 +96,7 @@ streamgraph_html = r"""
                   .left(function(d) x(d)-8)
                   .height(20)
                   .width(16)
-                  .fillStyle(function() pv.color("hsl("+Hscale(this.index)+",100%,50%)"));
+                  .fillStyle(function() pv.color("hsl("+Hscale(this.index)+",100%%,50%%)"));
             
             // vis.add(pv.Rule)
             //     .data(y.ticks())
@@ -107,7 +106,7 @@ streamgraph_html = r"""
             
             frame.render();
     
-            document.getElementById("svgoutput").value = vis.scene[0].canvas.innerHTML;
+            document.getElementById("svgoutput").value = frame.scene[0].canvas.innerHTML;
     
     
         </script>

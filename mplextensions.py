@@ -193,3 +193,19 @@ def boxplot(ax, x, positions=None, widths=None, vert=1):
         ax.add_patch(box)
         ax.add_line(medline)
 
+
+# define colormap for -1 to 1 (green-black-red) like gene expression
+_redgreencdict = {'red': [(0.0,   0.0,   0.0),
+                         (0.5,   0.0,   0.0),
+                         (1.0,   1.0,   0.0)],
+                        
+                'green':[(0.0,   0.0,   1.0),
+                         (0.5,   0.0,   0.0),
+                         (1.0,   0.0,   0.0)],
+                        
+                'blue': [(0.0,   0.0,   0.0),
+                         (0.5,   0.0,   0.0),
+                         (1.0,   0.0,   0.0)]}
+
+redgreen = mpl.colors.LinearSegmentedColormap('redgreen',_redgreencdict,256)
+redgreen.set_bad(color='w')

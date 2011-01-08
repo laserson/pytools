@@ -34,10 +34,9 @@ jobs_handle = open(jobs_list_file,'r')
 job_ids = []
 logs = []
 for (i,line) in enumerate(jobs_handle):
-    print "hello", i, line
-    # datetimestamp = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
-    # log = os.path.join( log_dir, 'job_%i_%s.log' % (i,datetimestamp) )
-    # job_id = lsf.submit_to_LSF(options.queue,log,line.strip())
-    # job_ids.append(job_id)
-    # logs.append(log)
+    datetimestamp = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
+    log = os.path.join( log_dir, 'job_%i_%s.log' % (i,datetimestamp) )
+    job_id = lsf.submit_to_LSF(options.queue,log,line.strip())
+    job_ids.append(job_id)
+    logs.append(log)
 jobs_handle.close()

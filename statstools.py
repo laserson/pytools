@@ -69,3 +69,37 @@ def bootstrap(x, nboot, theta):
     th_star = np.asarray( map(theta,rand_iter()) )
     
     return th_star
+
+def sample2counts(sample, categories=0):
+    """Return count vector from list of samples.
+    
+    Take vector of samples and return a vector of counts.  The elts
+       refer to indices in something that would ultimately map to the
+       originating category (like from a multinomial).  Therefore, if there
+       are, say, 8 categories, then valid values in sample should be 0-7.
+       If categories is not given, then i compute it from the highest value
+       present in sample (+1).
+    
+    """
+    counts = np.bincount(sample)
+    if (categories > 0) and (categories > len(counts)):
+        counts = np.append( counts, np.zeros(categories-len(counts)) )
+    return counts
+
+def counts2sample(counts):
+    """Computes a consistent sample from a vector of counts.
+    
+    Takes a vector of counts and returns a vector of indices x
+       such that len(x) = sum(c) and each elt of x is the index of
+       a corresponding elt in c
+    
+    """
+    x = np.ones(np.sum(counts),dtype=np.int_)
+    
+    start_idx = 0
+    end_idx = 0
+    for i in xrange(len(counts)):
+        start_idx = end_idx
+        end_idx = end_idx + counts[i]
+        x[start_idx:end_idx] = x[start_idx:end_idx] * i 
+    return x

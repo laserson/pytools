@@ -9,7 +9,7 @@ import lsf
 option_parser = optparse.OptionParser()
 option_parser.add_option('-m','--make_jobs',action='store_true')
 option_parser.add_option('-s','--submit_jobs',action='store_true')
-option_parser.add_option('-q','--queue',default='long_serial')
+option_parser.add_option('-q','--queue',default='normal_serial')
 option_parser.add_option('-l','--log_dir')
 (options,args) = option_parser.parse_args()
 

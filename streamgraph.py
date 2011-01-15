@@ -9,16 +9,16 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 
 # baseline functions
-def symmetric(streams):
+def baseline_symmetric(streams):
     """Symmetric baseline ('silhouette')"""
     g0 = -0.5 * np.sum(np.asarray(streams),axis=0)
     return g0
 
-def zero(streams):
+def baseline_zero(streams):
     """Zero baseline"""
     return np.zeros(np.asarray(streams).shape[1])
 
-def weighted_wiggle(streams):
+def baseline_weighted_wiggle(streams):
     """Weighted-wiggle minimization
     
     NOTE: streams should already be ordered as desired
@@ -34,14 +34,14 @@ def weighted_wiggle(streams):
     return g0
 
 # ordering functions
-def onset(streams):
+def argsort_onset(streams):
     """Returns permutation indices (like argsort) for onset ordering."""
     streams = np.asarray(streams)
     nonzero_idxs = [np.arange(streams.shape[1])[idxs] for idxs in (streams > 0)]
     onset_idxs = [np.min(nzi) if len(nzi) > 0 else streams.shape[1] for nzi in nonzero_idxs]
     return np.argsort(onset_idxs)
 
-def inside_out(streams):
+def argsort_inside_out(streams):
     """Returns permutation indices (like argsort) for inside-out ordering."""
     upper = []
     lower = []
@@ -57,7 +57,7 @@ def inside_out(streams):
     
     return upper[::-1] + lower
 
-def streamgraph(ax,streams, x=None, colors=None, baseline=weighted_wiggle):
+def streamgraph(ax, streams, x=None, colors=None, baseline=baseline_weighted_wiggle):
     streams = np.asarray(streams)
     
     g0 = baseline(streams)
@@ -82,8 +82,8 @@ def streamgraph(ax,streams, x=None, colors=None, baseline=weighted_wiggle):
     ax.add_collection(polys)
     
     return ax
-    
-        
+
+
 # Demo
 if __name__ == '__main__':
     # np.random.seed(1)
@@ -112,4 +112,3 @@ if __name__ == '__main__':
     streamgraph(ax,dsets,baseline=weighted_wiggle)
     ax.autoscale_view()
     plt.draw()
-## end of http://code.activestate.com/recipes/576633/ }}}

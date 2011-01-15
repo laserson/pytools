@@ -48,14 +48,14 @@ def inside_out(streams):
     weight_up = 0
     weight_lo = 0
     for (i,stream) in enumerate(streams):
-        if weight_up >= weight_lo:
+        if weight_up < weight_lo:
             upper.append(i)
             weight_up += np.sum(stream)
         else:
             lower.append(i)
             weight_lo += np.sum(stream)
     
-    return upper + lower
+    return upper[::-1] + lower
 
 def streamgraph(ax,streams, x=None, colors=None, baseline=weighted_wiggle):
     streams = np.asarray(streams)
@@ -104,9 +104,12 @@ if __name__ == '__main__':
         this_dset[max(t_onset,0):]=np.exp(-.15*np.random.gamma(10,.1)*remaining_t)\
                             * remaining_t * np.random.gamma(6,.2)# * np.cos(-fade*remaining_t*np.random.gamma(10,.1))**2
         dsets.append(this_dset)
-    import pdb
-    pdb.set_trace()
-    streamgraph(ax,dsets,baseline=symmetric)
+    # import pdb
+    # pdb.set_trace()
+    dsets = np.asarray(dsets)
+    dsets = dsets[onset(dsets)]
+    dsets = dsets[inside_out(dsets)]
+    streamgraph(ax,dsets,baseline=weighted_wiggle)
     ax.autoscale_view()
     plt.draw()
 ## end of http://code.activestate.com/recipes/576633/ }}}

@@ -86,7 +86,7 @@ def streamgraph(ax,streams, x=None, colors=None, baseline=weighted_wiggle):
         
 # Demo
 if __name__ == '__main__':
-    np.random.seed(1)
+    # np.random.seed(1)
     fig = plt.figure()
     ax = fig.add_subplot(111)
     N_dsets = 50

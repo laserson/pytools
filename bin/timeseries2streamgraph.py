@@ -1,11 +1,15 @@
 #! /usr/bin/env python
 
-import sys
 import optparse
-import json
+import colorsys
+
+import numpy as np
+import matplotlib as mpl
+mpl.use('Agg')
+import matplotlib.pyplot as plt
 
 import timeseries
-from streamgraph_html import streamgraph_html
+import streamgraph
 
 option_parser = optparse.OptionParser()
 # option_parser.add_option('-x','--xxx',dest='xxxx',type='int')
@@ -13,37 +17,46 @@ option_parser = optparse.OptionParser()
 
 if len(args) == 2:
     inhandle = open(args[0],'r')
-    outhandle = open(args[1],'w')
-elif len(args) == 1:
-    inhandle = open(args[0],'r')
-    outhandle = sys.stdout
-elif len(args) == 0:
-    inhandle = sys.stdin
-    outhandle = sys.stdout
+else:
+    raise ValueError, "need input and output names"
 
 data = timeseries.load_timeseries(inhandle)
+matrix = data['matrix']
+labels = data['labels']
+times = data['times']
+sums = data['sums']
 
-# eliminate numpy-ness of objects before JSON output
-np_matrix = data['matrix']
-py_matrix = []
+streams = matrix / sums
 
-if np_matrix[0][0].dtype.kind == 'i':
-    num_type = int
-elif np_matrix[0][0].dtype.kind == 'f':
-    num_type = float
-else:
-    raise TypeError, "data matrix must be int or float types"
-    
-for row in np_matrix:
-    py_matrix.append(map(num_type,list(row)))
-data['matrix'] = py_matrix
-data['labels'] = list(data['labels'])
+# determine colors for the streamgraph
+colors = []
+min_norm_weight = streams.sum(axis=1).min()
+max_norm_weight = streams.sum(axis=1).max()
+onset_time = lambda stream: np.min(np.arange(len(stream))[stream > 0])
+weight = lambda stream: np.sum(stream)
+for stream in streams:
+    h = float(onset_time(stream)) / (len(times)-1)
+    l = (weight(stream) - min_norm_weight) / (max_norm_weight - min_norm_weight) * 0.3 + 0.5
+    colors.append( colorsys.hls_to_rgb(h,l,1) + (1.,) )
+colors = np.array(colors)
 
-for label in data.keys():
-    if label == 'labels' or label == 'matrix':
-        continue
-    data[label] = list(data[label])
+# sort streamgraphs appropriately
+argsort_onset = streamgraph.argsort_onset(streams)
+streams = streams[argsort_onset]
+colors = colors[argsort_onset]
 
-streamgraph_output = streamgraph_html % (json.dumps(data))
+# argsort_inside_out = streamgraph.argsort_inside_out(streams)
+# streams = streams[argsort_inside_out]
+# colors = colors[argsort_inside_out]
 
-outhandle.write(streamgraph_output)
+# filter out some clones
+stream_filter = np.sum(streams > 0, axis=1) >= 2
+streams = streams[stream_filter]
+colors = colors[stream_filter]
+
+fig = plt.figure(figsize=(24,16))
+ax = fig.add_subplot(111)
+streamgraph.streamgraph(ax, streams, x=times, colors=colors)
+ax.autoscale_view()
+# fig.show()
+fig.savefig(args[1])

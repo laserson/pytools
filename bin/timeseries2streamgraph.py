@@ -8,6 +8,7 @@ import matplotlib as mpl
 mpl.use('Agg')
 import matplotlib.pyplot as plt
 
+import scale
 import timeseries
 import streamgraph
 
@@ -30,13 +31,13 @@ streams = matrix / sums
 
 # determine colors for the streamgraph
 colors = []
-min_norm_weight = streams.sum(axis=1).min()
-max_norm_weight = streams.sum(axis=1).max()
 onset_time = lambda stream: np.min(np.arange(len(stream))[stream > 0])
 weight = lambda stream: np.sum(stream)
+Hscale = scale.linear(range(len(times))).range(0,1-1./len(times))
+Lscale = scale.root(streams.sum(axis=1)).range(0.8,0.5).power(4)
 for stream in streams:
-    h = float(onset_time(stream)) / (len(times)-1)
-    l = (weight(stream) - min_norm_weight) / (max_norm_weight - min_norm_weight) * 0.3 + 0.5
+    h = Hscale(onset_time(stream))
+    l = Lscale(weight(stream))
     colors.append( colorsys.hls_to_rgb(h,l,1) + (1.,) )
 colors = np.array(colors)
 

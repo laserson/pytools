@@ -34,7 +34,7 @@ class quantitative(object):
         if not self._in_domain(x):
             raise ValueError, "outside domain"
         segment = bisect.bisect_right(self._domain,x) - 1
-        if segment == len(self._domain): segment -= 1   # deal with extra endpoint (fully closed interval), e.g., [0,1) [1,2) [2,3]
+        if segment + 1 == len(self._domain): segment -= 1   # deal with extra endpoint (fully closed interval), e.g., [0,1) [1,2) [2,3]
         return (self._transform(x) - self._transform(self._domain[segment])) / (self._transform(self._domain[segment+1]) - self._transform(self._domain[segment])) * (self._range[segment+1] - self._range[segment]) + self._range[segment]
     
     def domain(self,*args):
@@ -46,7 +46,7 @@ class quantitative(object):
         else:   # given explicit values for piecewise domain
             if len(args) != len(set(args)):
                 raise ValueError, "domain values must be unique"
-            if list(args) != sorted(list(args)):     # FIGURE THIS OUT
+            if list(args) != sorted(list(args)) and list(args)[::-1] != sorted(list(args)):     # FIGURE THIS OUT
                 raise ValueError, "domain values must be sorted"
             self._domain = args
         
@@ -64,7 +64,7 @@ class quantitative(object):
         else:   # given explicit values for piecewise range
             if len(args) != len(set(args)):
                 raise ValueError, "range values must be unique"
-            if list(args) != sorted(list(args)):     # FIGURE THIS OUT
+            if list(args) != sorted(list(args)) and list(args)[::-1] != sorted(list(args)):     # FIGURE THIS OUT
                 raise ValueError, "range values must be sorted"
             self._range = args
         

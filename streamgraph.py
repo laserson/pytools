@@ -82,33 +82,3 @@ def streamgraph(ax, streams, x=None, colors=None, baseline=baseline_weighted_wig
     ax.add_collection(polys)
     
     return ax
-
-
-# Demo
-if __name__ == '__main__':
-    # np.random.seed(1)
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
-    N_dsets = 50
-    T = 100
-    amp = 1
-    fade = .15
-    dsets = []
-    for i in xrange(N_dsets):
-        this_dset = np.zeros(T)
-        t_onset = np.random.randint(.9*T)-T/3
-        if t_onset >= 0:   
-            remaining_t = np.arange(T-t_onset)     
-        else:
-            remaining_t = np.arange(T)-t_onset
-        this_dset[max(t_onset,0):]=np.exp(-.15*np.random.gamma(10,.1)*remaining_t)\
-                            * remaining_t * np.random.gamma(6,.2)# * np.cos(-fade*remaining_t*np.random.gamma(10,.1))**2
-        dsets.append(this_dset)
-    # import pdb
-    # pdb.set_trace()
-    dsets = np.asarray(dsets)
-    dsets = dsets[onset(dsets)]
-    dsets = dsets[inside_out(dsets)]
-    streamgraph(ax,dsets,baseline=weighted_wiggle)
-    ax.autoscale_view()
-    plt.draw()

@@ -82,3 +82,21 @@ def streamgraph(ax, streams, x=None, colors=None, baseline=baseline_weighted_wig
     ax.add_collection(polys)
     
     return ax
+
+def format_streamgraph(ax):
+    """Performs some common formatting operations for streamgraphs"""
+    # kill the frame
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.spines['bottom'].set_visible(False)
+    ax.spines['left'].set_visible(False)
+    
+    # set ticks
+    ax.xaxis.set_ticks_position('bottom')
+
+
+
+
+
+
+

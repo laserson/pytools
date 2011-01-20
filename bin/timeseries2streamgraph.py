@@ -23,7 +23,7 @@ else:
 
 data = timeseries.load_timeseries(inhandle)
 matrix = data['matrix']
-labels = data['labels']
+labels = np.asarray(data['labels'])
 times = data['times']
 sums = data['sums']
 
@@ -31,7 +31,8 @@ streams = matrix / sums
 
 # determine colors for the streamgraph
 colors = []
-onset_time = lambda stream: np.min(np.arange(len(stream))[stream > 0])
+time_idxs = np.arange(streams.shape[1])
+onset_time = lambda stream: np.min(time_idxs[stream > 0])
 weight = lambda stream: np.sum(stream)
 Hscale = scale.linear(range(len(times))).range(0,1-1./len(times))
 Lscale = scale.root(streams.sum(axis=1)).range(0.8,0.5).power(4)
@@ -51,13 +52,14 @@ colors = colors[argsort_onset]
 # colors = colors[argsort_inside_out]
 
 # filter out some clones
-stream_filter = np.sum(streams > 0, axis=1) >= 2
-streams = streams[stream_filter]
-colors = colors[stream_filter]
+filter_idxs = np.ones(streams.shape[0]) > 0     # all streams
+# filter_idxs = np.sum(streams > 0, axis=1) >= 2  # seen twice
 
 fig = plt.figure(figsize=(24,16))
 ax = fig.add_subplot(111)
-streamgraph.streamgraph(ax, streams, x=times, colors=colors)
+streamgraph.streamgraph(ax, streams[filter_idxs], x=times, colors=colors[filter_idxs])
+streamgraph.format_streamgraph(ax)
+ax.xaxis.set_ticks(times)
 ax.autoscale_view()
 # fig.show()
-fig.savefig(args[1])
+fig.savefig(args[1],dpi=120)

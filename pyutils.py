@@ -1,8 +1,8 @@
 import copy
 import collections
 
-def raiseKeyError():
-    raise KeyError
+# def raiseKeyError():
+#     raise KeyError
 
 class nesteddict(collections.defaultdict):
     """Nested dictionary structure.
@@ -17,7 +17,8 @@ class nesteddict(collections.defaultdict):
         self.locked = False
     
     def lock(self):
-        self.default_factory = raiseKeyError
+        # self.default_factory = raiseKeyError
+        self.default_factory = None
         self.locked = True
         for value in self.itervalues():
             if isinstance(value, nesteddict):

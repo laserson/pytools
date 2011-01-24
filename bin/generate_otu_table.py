@@ -38,7 +38,8 @@ outhandle = open(outfilename,'w')
 
 print >>outhandle, "#OTU counts %s" % basename
 header = "OTU ID"
-for (sample,descr) in samples: header += "\t%s" % ('_'.join([sample,descr]))
+# for (sample,descr) in samples: header += "\t%s" % ('_'.join([sample,descr]))
+for (sample,descr) in samples: header += "\t%s" % sample
 print >>outhandle, header
 
 for (label,countvector) in zip(uniq_feature_values['clone'],countmatrix):

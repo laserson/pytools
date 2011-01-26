@@ -13,7 +13,7 @@ import timeseries
 import streamgraph
 
 option_parser = optparse.OptionParser()
-# option_parser.add_option('-x','--xxx',dest='xxxx',type='int')
+option_parser.add_option('-f','--filter',type='choice',choices=['none','seen2','sum2','sum3'],default='none')
 (options,args) = option_parser.parse_args()
 
 if len(args) == 2:
@@ -45,6 +45,7 @@ colors = np.array(colors)
 # sort streamgraphs appropriately
 argsort_onset = streamgraph.argsort_onset(streams)
 streams = streams[argsort_onset]
+matrix = matrix[argsort_onset]
 colors = colors[argsort_onset]
 
 # argsort_inside_out = streamgraph.argsort_inside_out(streams)
@@ -52,8 +53,16 @@ colors = colors[argsort_onset]
 # colors = colors[argsort_inside_out]
 
 # filter out some clones
-filter_idxs = np.ones(streams.shape[0]) > 0     # all streams
-# filter_idxs = np.sum(streams > 0, axis=1) >= 2  # seen twice
+if options.filter == 'none':
+    filter_idxs = np.ones(streams.shape[0]) > 0     # all streams
+elif options.filter == 'seen2':
+    filter_idxs = np.sum(streams > 0, axis=1) >= 2  # seen twice
+elif options.filter == 'sum2':
+    filter_idxs = np.sum(matrix, axis=1) >= 2  # sum=2
+elif options.filter == 'sum3':
+    filter_idxs = np.sum(matrix, axis=1) >= 3  # sum=3
+else:
+    raise ValueError, "what filter do you want me to use?"
 
 fig = plt.figure(figsize=(24,16))
 ax = fig.add_subplot(111)
@@ -62,4 +71,4 @@ streamgraph.format_streamgraph(ax)
 ax.xaxis.set_ticks(times)
 ax.autoscale_view()
 # fig.show()
-fig.savefig(args[1],dpi=120)
+fig.savefig(args[1],dpi=300)

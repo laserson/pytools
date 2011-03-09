@@ -9,8 +9,13 @@ standard_primers = {    # 5' -> 3'
 
 standard_vectors = {
     'pCR4-TOPO-left' : 'catgattacgccaagctcagaattaaccctcactaaagggactagtcctgcaggtttaaacgaattcgccctt',
-    'pCR4-TOPO-right' : 'aagggcgaattcgcggccgctaaattcaattcgccctatagtgagtcgtattacaattca'
+    'pCR4-TOPO-right' : 'aagggcgaattcgcggccgctaaattcaattcgccctatagtgagtcgtattacaattca',
+    'pCR4Blunt-TOPO-left' : 'catgattacgccaagctcagaattaaccctcactaaagggactagtcctgcaggtttaaacgaattcgccctt',
+    'pCR4Blunt-TOPO-right' : 'aagggcgaattcgcggccgctaaattcaattcgccctatagtgagtcgtattacaattca'
 }
+
+
+
 
 def trimleft(left,read):
     """Align 2 seqs, forcing alignment of right-end of left.
@@ -23,6 +28,7 @@ def trimleft(left,read):
     # perform alignment
     cmd = exonerate.ExonerateCommand('findend','parsable','bestonly')
     rawaln = exonerate.run_exonerate2(cmd,left,read)
+    if rawaln == '': return read
     aln = exonerate.parse_aln(rawaln)
     
     # check that the right-end of left was successfully placed
@@ -49,6 +55,7 @@ def trimright(right,read):
     # perform alignment
     cmd = exonerate.ExonerateCommand('findend','parsable','bestonly')
     rawaln = exonerate.run_exonerate2(cmd,right,read)
+    if rawaln == '': return read
     aln = exonerate.parse_aln(rawaln)
     
     # check that the left-end of right was successfully placed

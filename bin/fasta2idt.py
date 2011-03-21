@@ -1,3 +1,5 @@
+#! /usr/bin/env python
+
 import sys
 
 import seqtools
@@ -13,4 +15,4 @@ elif len(sys.argv) == 1:
     outhandle = sys.stdout
 
 for (descr,seq) in seqtools.FastaIterator(inhandle):
-    print >>outhandle, "%-30s%s" % (descr,seq)
+    print >>outhandle, "%s\t%s" % (descr,seq)

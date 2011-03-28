@@ -2,19 +2,20 @@
 
 if __name__ == '__main__':
     import sys
-    import optparse
+    import argparse
     
-    option_parser = optparse.OptionParser()
-    option_parser.add_option('-x','--xxx',dest='xxxx',type='int')
-    (options,args) = option_parser.parse_args()
+    argparser = argparse.ArgumentParser(description=None)
+    argparser.add_argument('positional',type=int,nargs='+')
+    argparser.add_argument('--option',dest='xxx',action='store_const',default=5)
+    args = argparser.parse_args()
     
-    if len(args) == 2:
+    if len(args.positional) == 2:
         inhandle = open(args[0],'r')
         outhandle = open(args[1],'w')
-    elif len(args) == 1:
+    elif len(args.positional) == 1:
         inhandle = open(args[0],'r')
         outhandle = sys.stdout
-    elif len(args) == 0:
+    elif len(args.positional) == 0:
         inhandle = sys.stdin
         outhandle = sys.stdout
 

@@ -144,3 +144,9 @@ def copy_features( record_from, record_to, coord_mapping, offset=0, erase=[] ):
         for qual in erase:
             new_feature.qualifiers.pop(qual,None)
         record_to.features.append(new_feature)
+
+def translate_features( record ):
+    for feature in record.features:
+        offset = int(feature.qualifiers.get('codon_start',[1])[0]) - 1
+        feature.qualifiers['translation'] = feature.extract(record.seq)[offset:].translate()
+

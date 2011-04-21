@@ -142,5 +142,5 @@ def copy_features( record_from, record_to, coord_mapping, offset=0, erase=[] ):
         new_location = FeatureLocation(new_start,new_end)
         new_feature.location = new_location
         for qual in erase:
-            new_feature.qualifiers.pop(qual)
+            new_feature.qualifiers.pop(qual,default=None)
         record_to.features.append(new_feature)

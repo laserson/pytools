@@ -134,11 +134,13 @@ def advance_to_features(feature_iter,feature_types):
 def advance_to_feature(feature_iter,feature_type):
     return advance_to_features(feature_iter,[feature_type])
 
-def copy_features( record_from, record_to, coord_mapping, offset=0 ):
+def copy_features( record_from, record_to, coord_mapping, offset=0, erase=[] ):
     for feature in record_from.features:
         new_feature = copy.deepcopy(feature)
         new_start = coord_mapping[feature.location.start.position][-1] + offset
         new_end   = coord_mapping[feature.location.end.position][0] + offset
         new_location = FeatureLocation(new_start,new_end)
         new_feature.location = new_location
+        for qual in erase:
+            new_feature.qualifiers.pop(qual)
         record_to.features.append(new_feature)

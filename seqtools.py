@@ -167,15 +167,28 @@ def advance_to_features(feature_iter,feature_types):
 def advance_to_feature(feature_iter,feature_type):
     return advance_to_features(feature_iter,[feature_type])
 
-def copy_features( record_from, record_to, coord_mapping, offset=0, erase=[] ):
+def map_feature( feature, coord_mapping, offset=0, erase=[] ):
+    new_feature = copy.deepcopy(feature)
+    new_start = coord_mapping[feature.location.start.position][-1] + offset
+    new_end   = coord_mapping[feature.location.end.position][0] + offset
+    new_location = FeatureLocation(new_start,new_end)
+    new_feature.location = new_location
+    for qual in erase:
+        new_feature.qualifiers.pop(qual,None)
+    return new_feature
+
+def copy_features( record_from, record_to, coord_mapping, offset=0, erase=[], replace=False ):
+    if replace:
+        # index record_to features:
+        feature_index = {}
+        for (i,feature) in enumerate(record_to.features):
+            feature_index.setdefault(feature.type,[]).append(i)
+    
     for feature in record_from.features:
-        new_feature = copy.deepcopy(feature)
-        new_start = coord_mapping[feature.location.start.position][-1] + offset
-        new_end   = coord_mapping[feature.location.end.position][0] + offset
-        new_location = FeatureLocation(new_start,new_end)
-        new_feature.location = new_location
-        for qual in erase:
-            new_feature.qualifiers.pop(qual,None)
+        if replace:
+            for idx in sorted(feature_index.get(feature.type,[]),reverse=True):
+                record_to.features.pop(idx)
+        new_feature = map_feature( feature, coord_mapping, offset, erase )
         record_to.features.append(new_feature)
 
 def translate_features( record ):

@@ -1,10 +1,13 @@
 import copy
 import string
 import random
+import itertools
 
 from Bio.Seq        import Seq
 from Bio.SeqRecord  import SeqRecord
 from Bio.SeqFeature import SeqFeature, FeatureLocation
+
+import unafold
 
 random.seed()
 
@@ -62,6 +65,36 @@ def seqmode(seqs):
     if isinstance(seqs,list):
         seqs = seqhist(seqs)
     return max(seqs.iterkeys(),key=lambda k: seqs[k])
+
+def dimer_dG(seq1,seq2):
+    """Compute a primer-dimer score using UNAFOLD hybrid_min"""
+    scores = []
+    for i in xrange( min(len(seq1),len(seq2)) ):
+        subseq1 = seq1[-i-1:]
+        subseq2 = seq2[-i-1:]
+        scores.append(unafold.hybrid_min(subseq1,subseq2))
+    return -min(scores)
+
+def dimer_overlap(seq1,seq2,weight_3=10):
+    """Compute a primer-dimer score by counting overlaps
+    
+    weight_3 is the num of 3' bases to add extra weight to either primer
+    """
+    overlap_score = lambda s1,s2: sum(1 if c1 == c2 else -1 for c1, c2 in itertools.izip(s1,s2))
+    seq2rc = reverse_complement(seq1)
+    scores = []
+    for i in xrange( min(len(seq1),len(seq2)) ):
+        subseq1 = seq1[-i-1:]
+        subseq2 = seq2rc[:i+1]
+        score = 0
+        if (i+1) <= 2*weight_3:
+            score += overlap_score(subseq1,subseq2) * 2
+        else:
+            score += overlap_score(subseq1[:weight_3],subseq2[:weight_3]) * 2
+            score += overlap_score(subseq1[weight_3:-weight_3],subseq2[weight_3:-weight_3])
+            score += overlap_score(subseq1[-weight_3:],subseq2[-weight_3:]) * 2
+        scores.append(score)
+    return max(scores)
 
 # ==========================
 # = Manual FASTA iteration =

@@ -184,12 +184,16 @@ def copy_features( record_from, record_to, coord_mapping, offset=0, erase=[], re
         for (i,feature) in enumerate(record_to.features):
             feature_index.setdefault(feature.type,[]).append(i)
     
+    feat_idx_to_delete = []
     for feature in record_from.features:
         if replace:
-            for idx in sorted(feature_index.get(feature.type,[]),reverse=True):
-                record_to.features.pop(idx)
+            feat_idx_to_delete += feature_index.get(feature.type,[])
         new_feature = map_feature( feature, coord_mapping, offset, erase )
         record_to.features.append(new_feature)
+    
+    if replace:
+        for idx in sorted(feat_idx_to_delete,reverse=True):
+            record_to.features.pop(idx)
 
 def translate_features( record ):
     for feature in record.features:

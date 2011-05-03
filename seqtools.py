@@ -80,7 +80,9 @@ def dimer_overlap(seq1,seq2,weight_3=10):
     
     weight_3 is the num of 3' bases to add extra weight to either primer
     """
-    overlap_score = lambda s1,s2: sum(1 if c1 == c2 else -1 for c1, c2 in itertools.izip(s1,s2))
+    # import pdb
+    # pdb.set_trace()
+    overlap_score = lambda s1,s2: sum(1 if c1.lower() == c2.lower() else -1 for c1, c2 in itertools.izip(s1,s2))
     seq2rc = reverse_complement(seq1)
     scores = []
     for i in xrange( min(len(seq1),len(seq2)) ):

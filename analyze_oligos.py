@@ -24,10 +24,10 @@ def output_primers(primers,names):
     # trunc_primers = [p[-min(18,min(lens)):] for p in primers]
     trunc_primers = primers # NO TRUNCATION
     seqrecords = map(lambda t: seqtools.make_SeqRecord(*t),zip(names,trunc_primers))
-    blat_hits = map(blat.search_sequence,seqrecords)
+    # blat_hits = map(blat.search_sequence,seqrecords)
     
-    for datum in zip(names,primers,lens,Tms,gcs,dGs,blat_hits):
-        primer_string = "%-25s %-30s %-4i %-5.1f %-4.0f %-7.1f %-5i\n" % datum
+    for datum in zip(names,primers,lens,Tms,gcs,dGs): #,blat_hits):
+        primer_string = "%-25s %-30s %-4i %-5.1f %-4.0f %-7.1f\n" % datum
         sys.stdout.write(primer_string)
     
     summary_data = lambda d: (np.mean(d),np.std(d),np.min(d),np.max(d))
@@ -38,7 +38,7 @@ def output_primers(primers,names):
     sys.stdout.write('Tm     mean: %5.1f    std: %5.1f    min: %5.1f    max %5.1f\n' % summary_data(Tms))
     sys.stdout.write('%%GC    mean: %5.1f    std: %5.1f    min: %5.1f    max %5.1f\n' % summary_data(gcs))
     sys.stdout.write('dGs    mean: %5.1f    std: %5.1f    min: %5.1f    max %5.1f\n' % summary_data(dGs))
-    sys.stdout.write('BLAT  mean: %5.1f    std: %5.1f    min: %5.1f    max %5.1f    total: %5.1f\n' % (summary_data(blat_hits)+(np.sum(blat_hits),)))
+    # sys.stdout.write('BLAT  mean: %5.1f    std: %5.1f    min: %5.1f    max %5.1f    total: %5.1f\n' % (summary_data(blat_hits)+(np.sum(blat_hits),)))
 
 if __name__ == '__main__':
     

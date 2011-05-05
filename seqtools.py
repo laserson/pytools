@@ -69,10 +69,12 @@ def seqmode(seqs):
 def dimer_dG(seq1,seq2):
     """Compute a primer-dimer score using UNAFOLD hybrid_min"""
     scores = []
+    subseqs1 = []
+    subseqs2 = []
     for i in xrange( min(len(seq1),len(seq2)) ):
-        subseq1 = seq1[-i-1:]
-        subseq2 = seq2[-i-1:]
-        scores.append(unafold.hybrid_min(subseq1,subseq2))
+        subseqs1.append( seq1[-i-1:] )
+        subseqs2.append( seq2[-i-1:] )
+    scores = unafold.hybrid_min_list(subseqs1,subseqs2,NA='DNA')
     return -min(scores)
 
 def dimer_overlap(seq1,seq2,weight_3=10):

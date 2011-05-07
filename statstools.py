@@ -1,6 +1,8 @@
 import random
 
 import numpy as np
+import scipy as sp
+import scipy.stats
 
 random.seed()
 # random.seed(1)
@@ -103,3 +105,41 @@ def counts2sample(counts):
         end_idx = end_idx + counts[i]
         x[start_idx:end_idx] = x[start_idx:end_idx] * i 
     return x
+
+def entropy_bootstrap(pk,size,N=1000):
+    """Compute bootstrapped entropy values.
+
+    pk is a multinomial vector (will be normalized)
+    size is the number of objects to draw from a multinomial at each iter
+    N is number of bootstrap replicates
+    """
+    pk = np.asarray(pk,dtype=np.float)
+    pk = pk / np.sum(pk)
+    
+    entropies = []
+    for i in xrange(N):
+        entropies.append( sp.stats.entropy(np.random.multinomial(size,pk)) )
+    
+    return entropies
+
+def entropy_bootstrap2(pk,N=1000,total=0):
+    """Compute bootstrapped entropy values.
+    
+    pk is a count vector
+    sum is the total number of objects to draw from
+    N is number of bootstrap replicates
+    """
+    n = sum(pk)
+    if total == 0:
+        total = n
+    
+    pk = list(pk)
+    pk.append(total-n)
+    pk = np.asarray(pk,dtype=np.float)
+    pk = pk / np.sum(pk)
+    
+    entropies = []
+    for i in xrange(N):
+        entropies.append( sp.stats.entropy(np.random.multinomial(n,pk)[:-1]) )
+    
+    return entropies

@@ -1,5 +1,6 @@
 import os
 import glob
+import random
 import tempfile
 import subprocess
 
@@ -19,7 +20,7 @@ def hybrid_min(seq1,seq2,NA='RNA',tmin=37,tinc=1,tmax=37,sodium=1,magnesium=0):
 
 def hybrid_min_list(seqlist1,seqlist2,NA='RNA',tmin=37,tinc=1,tmax=37,sodium=1,magnesium=0):
     # set up temporary files
-    temp_out_prefix = 'temporary_hybrid_6157'
+    temp_out_prefix = 'temporary_hybrid_%i_%i' % (os.getpid(),random.randint(0,10000))
     seqfile1 = tempfile.NamedTemporaryFile(mode='w',dir='.',prefix='hybrid_min_temp',suffix='.fasta')
     seqfile2 = tempfile.NamedTemporaryFile(mode='w',dir='.',prefix='hybrid_min_temp',suffix='.fasta')
     for (i,seq) in enumerate(seqlist1): print >>seqfile1, ">1_%i\n%s" % (i,seq)

@@ -1,7 +1,70 @@
+import random
+
 import numpy as np
+import scipy as sp
+import scipy.stats
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+
+def jitter(data):
+    data = np.asarray(data)
+    (hist,edges) = np.histogram(data,bins=100)
+    hist = np.float_(hist) / max(hist)
+    idxs = np.searchsorted(edges[:-2],data)
+    return hist[idxs]
+
+def jitter_x(x,y,width=None):
+    x = np.asarray(x)
+    y = np.asarray(y)
+    
+    x_argsort = np.argsort(x)
+    x_uniq = sorted(list(set(x)))
+    
+    # find smallest interval between any two x-values
+    if width == None:
+        if len(x_uniq) == 1:
+            width = 1.
+        else:
+            interval = min([x[x_argsort[i+1]]-x[x_argsort[i]] for i in xrange(len(x)-1)])
+            width = interval / 3.
+    
+    x_jit = []
+    y_jit = []
+    for val in x_uniq:
+        idx = (x==val)
+        scaling_factors = jitter(y[idx])
+        for (x_val,y_val,scaling) in zip(x[idx],y[idx],scaling_factors):
+            x_jit.append( x_val + width * scaling * random.choice([-1,1]) * np.random.uniform(0,1))
+            y_jit.append( y_val )
+    
+    return (x_jit,y_jit)
+
+
+# def jitter_x(x,y,width=None):
+#     x = np.asarray(x)
+#     y = np.asarray(y)
+#     
+#     x_argsort = np.argsort(x)
+#     x_uniq = sorted(list(set(x)))
+#     
+#     # find smallest interval between any two x-values
+#     if width == None:
+#         interval = min([x[x_argsort[i+1]]-x[x_argsort[i]] for i in xrange(len(x)-1)])
+#         width = interval / 3.
+#     
+#     x_jit = []
+#     y_jit = []
+#     for val in x_uniq:
+#         idx = (x==val)
+#         kernel = sp.stats.kde.gaussian_kde(y[idx])
+#         kernel_max = max([kernel(v) for v in set(y[idx])])
+#         for (x_val,y_val) in zip(x[idx],y[idx]):
+#             x_jit.append( x_val + np.random.uniform(-1,1) * width * kernel(y_val) / kernel_max)
+#             y_jit.append( y_val )
+#     
+#     return (x_jit,y_jit)
+
 
 class ConstWidthRectangle(mpl.patches.Patch):
     

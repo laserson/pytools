@@ -1,4 +1,5 @@
 import copy
+import json
 import string
 import random
 import itertools
@@ -204,3 +205,24 @@ def translate_features( record ):
         offset = int(feature.qualifiers.get('codon_start',[1])[0]) - 1
         feature.qualifiers['translation'] = feature.extract(record.seq)[offset:].translate()
 
+# SeqRecord <-> JSON
+
+class SeqJSONEncoder(json.JSONEncoder):
+    def default(self,seq):
+        if isinstance(seq,Seq):
+            obj = {}
+            obj['__Seq__'] = True
+            obj['seq'] = seq.tostring()
+            obj['alphabet'] = seq.alphabet.__repr__().rstrip(')').rstrip('(')
+            return obj
+        else:
+            return JSONEncoder.default(self, seq)
+
+def JSON2Seq(obj):
+    if '__Seq__' in obj:
+        seq = Seq(obj['seq'],alphabet=Bio.Alphabet.__getattribute__())
+
+class SeqRecordJSONEncoder(json.JSONEncoder):
+    def default(self,record):
+        
+        return JSONEncoder.default(self, record)

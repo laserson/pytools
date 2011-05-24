@@ -4,6 +4,7 @@ import string
 import random
 import itertools
 
+from Bio            import Alphabet
 from Bio.Seq        import Seq
 from Bio.SeqRecord  import SeqRecord
 from Bio.SeqFeature import SeqFeature, FeatureLocation
@@ -205,24 +206,65 @@ def translate_features( record ):
         offset = int(feature.qualifiers.get('codon_start',[1])[0]) - 1
         feature.qualifiers['translation'] = feature.extract(record.seq)[offset:].translate()
 
-# SeqRecord <-> JSON
+# SeqRecord <-> JSON-serializable
 
-class SeqJSONEncoder(json.JSONEncoder):
-    def default(self,seq):
-        if isinstance(seq,Seq):
-            obj = {}
-            obj['__Seq__'] = True
-            obj['seq'] = seq.tostring()
-            obj['alphabet'] = seq.alphabet.__repr__().rstrip(')').rstrip('(')
-            return obj
-        else:
-            return JSONEncoder.default(self, seq)
+def simplifySeq(seq):
+    obj = {}
+    obj['__Seq__'] = True
+    obj['seq'] = seq.tostring()
+    obj['alphabet'] = seq.alphabet.__repr__().rstrip(')').rstrip('(')
+    return obj
 
-def JSON2Seq(obj):
-    if '__Seq__' in obj:
-        seq = Seq(obj['seq'],alphabet=Bio.Alphabet.__getattribute__())
+def complicateSeq(obj):
+    if '__Seq__' not in obj:
+        raise ValueError, "object must be converable to Bio.Seq"
+    
+    # Figure out which alphabet to use
+    try:
+        alphabet = Alphabet.__getattribute__(obj['alphabet'])()
+    except AttributeError:
+        pass
+    try:
+        alphabet = Alphabet.IUPAC.__getattribute__(obj['alphabet'])()
+    except AttributeError:
+        raise
+    
+    seq = Seq(obj['seq'],alphabet=alphabet)
+    return seq
 
-class SeqRecordJSONEncoder(json.JSONEncoder):
-    def default(self,record):
-        
-        return JSONEncoder.default(self, record)
+def simplifySeqFeature(feature):
+    obj = {}
+    obj['__SeqFeature__'] = True
+    obj['location'] = (feature.location.nofuzzy_start,feature.location.nofuzzy_end)
+    obj['type'] = feature.type
+    obj['strand'] = feature.strand
+    obj['id'] = feature.id
+    obj['qualifiers'] = feature.qualifiers
+    return obj
+
+def complicateSeqFeature(obj):
+    if '__SeqFeature__' not in obj:
+        raise ValueError, "object must be converable to Bio.SeqFeature"
+    location = FeatureLocation(*obj['location'])
+    feature = SeqFeature(location=location,type=obj['type'],strand=obj['strand'],id=obj['id'],qualifiers=obj['qualifiers'])
+    return feature
+
+def simplifySeqRecord(record):
+    obj = {}
+    obj['__SeqRecord__'] = True
+    obj['seq'] = simplifySeq(record.seq)
+    obj['id'] = record.id
+    obj['name'] = record.name
+    obj['description'] = record.description
+    obj['dbxrefs'] = record.dbxrefs
+    obj['annotations'] = record.annotations
+    obj['letter_annotations'] = record.letter_annotations   # should work because it is actually a _RestrictedDict obj which subclasses dict
+    obj['features'] = map(simplifySeqFeature,record.features)
+    return obj
+
+def complicateSeqRecord(obj):
+    if '__SeqRecord__' not in obj:
+        raise ValueError, "object must be converable to Bio.SeqRecord"
+    features = map(complicateSeqFeature,obj['features'])
+    record = SeqRecord(seq=complicateSeq(obj['seq']),id=obj['id'],name=obj['name'],description=obj['description'],dbxrefs=obj['dbxrefs'],features=features,annotations=obj['annotations'],letter_annotations=obj['letter_annotations'])
+    return record

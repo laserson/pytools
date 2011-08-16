@@ -192,7 +192,7 @@ class ExonerateCommand(object):
         self.verbose = 0
         # self.showalignment = False
         # self.showvulgar = False
-        self.ryo = 'aln_summary: %qi %ql %qab %qae %qS %ti %tl %tab %tae %tS %s %et %ei %pi\n'
+        self.ryo = r'aln_summary: %qi %ql %qab %qae %qS %ti %tl %tab %tae %tS %s %et %ei %pi\n'
     
     def preset_pretty(self):
         self.showalignment = True

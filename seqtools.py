@@ -52,7 +52,7 @@ def random_dna_seq(n):
 
 
 # for generating 'safe' filenames from identifiers
-cleanup_table = string.maketrans('/*|','___')
+cleanup_table = string.maketrans('/*|+ ','___p_')
 def cleanup_id(identifier):
     return identifier.translate(cleanup_table)
 

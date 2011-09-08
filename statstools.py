@@ -143,3 +143,56 @@ def entropy_bootstrap2(pk,N=1000,total=0):
         entropies.append( sp.stats.entropy(np.random.multinomial(n,pk)[:-1]) )
     
     return entropies
+
+def silhouette(Y,T):
+    """Emulate MATLAB silhouette fn for cluster quality.
+    
+    Y -- condensed-form pairwise distance matrix
+    T -- cluster assignments
+    
+    Based on StackOverflow #6644445
+    """
+    n = len(T)          # number of objects
+    clusters = set(T)   # the cluster labels
+    
+    X = sp.spatial.distance.squareform(Y)
+    
+    s = np.zeros(n)
+    for i in xrange(n):
+        incluster = T==T[i]
+        incluster[i] = False
+        if np.sum(incluster) == 0:
+            continue
+        
+        outcluster = lambda j: T==j
+        
+        # incluster average dist
+        a = np.mean( X[incluster,i] )
+        
+        # min outcluster avg dist
+        b = np.min([np.mean( X[outcluster(j),i] ) for j in (clusters-set([T[i]]))])
+        
+        s[i] = (b - a) / np.max([a,b])
+    
+    return s
+    
+    # N = len(T)              # number of instances
+    # K = len(np.unique(T))    # number of clusters
+    # 
+    # # compute pairwise distance matrix
+    # D = sp.spatial.distance.squareform(Y)
+    # 
+    # # indices belonging to each cluster
+    # kIndices = [np.flatnonzero(T==k) for k in range(K)]
+    # 
+    # # compute a,b,s for each instance
+    # a = np.zeros(N)
+    # b = np.zeros(N)
+    # for i in range(N):
+    #     # instances in same cluster other than instance itself
+    #     a[i] = np.mean( [D[i][ind] for ind in kIndices[T[i]] if ind!=i] )
+    #     # instances in other clusters, one cluster at a time
+    #     b[i] = np.min( [np.mean(D[i][ind]) for k,ind in enumerate(kIndices) if T[i]!=k] )
+    # s = (b-a)/np.maximum(a,b)
+    # 
+    # return s

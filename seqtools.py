@@ -106,10 +106,7 @@ def dimer_overlap(seq1,seq2,weight_3=10):
 # = Manual FASTA iteration =
 # ==========================
 
-# taken from biopython
-
-identity = string.maketrans('','')
-nonalpha = identity.translate(identity,string.ascii_letters)
+# based on biopython
 
 def FastaIterator(handle,title2ids=lambda s: s):
     while True:
@@ -127,7 +124,7 @@ def FastaIterator(handle,title2ids=lambda s: s):
         while True:
             if not line : break
             if line[0] == '>': break
-            fullline += line.translate(identity,nonalpha)
+            fullline += line.translate(None,string.whitespace)
             line = handle.readline()
         
         yield (descr,fullline)

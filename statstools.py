@@ -3,6 +3,7 @@ import random
 import numpy as np
 import scipy as sp
 import scipy.stats
+import scipy.spatial
 
 random.seed()
 # random.seed(1)

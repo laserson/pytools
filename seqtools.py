@@ -57,7 +57,7 @@ global_align = lambda seq1,seq1: pairwise2.align.globalms(seq1,seq2,0.5,-0.75,-2
 
 def percent_id(seq1,seq2):
     alignment = global_align(seq1,seq2)
-    return = (1. - hamming_distance(alignment[0],alignment[1]) / float(len(alignment[0]))) * 100.
+    return (1. - hamming_distance(alignment[0],alignment[1]) / float(len(alignment[0]))) * 100.
 
 # for generating 'safe' filenames from identifiers
 cleanup_table = string.maketrans('/*|><+ ','_____p_')

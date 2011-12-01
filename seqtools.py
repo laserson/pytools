@@ -8,6 +8,9 @@ from Bio            import Alphabet
 from Bio.Seq        import Seq
 from Bio.SeqRecord  import SeqRecord
 from Bio.SeqFeature import SeqFeature, FeatureLocation
+from Bio            import pairwise2
+
+from jellyfish import hamming_distance
 
 import unafold
 
@@ -49,6 +52,12 @@ def gc_content(seq):
 def random_dna_seq(n):
     choice = random.choice
     return reduce(lambda cumul,garbage:cumul+choice('ACGT'),xrange(n),'')
+
+global_align = lambda seq1,seq2: pairwise2.align.globalms(seq1,seq2,0.5,-0.75,-2,-1.5,one_alignment_only=True)[0]
+
+def percent_id(seq1,seq2):
+    alignment = global_align(seq1,seq2)
+    return 1. - hamming_distance(alignment[0],alignment[1]) / float(len(alignment[0]))
 
 
 # for generating 'safe' filenames from identifiers

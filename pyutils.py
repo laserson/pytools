@@ -1,8 +1,12 @@
 import copy
 import collections
 
-# def raiseKeyError():
-#     raise KeyError
+
+# for generating 'safe' filenames from identifiers
+cleanup_table = string.maketrans('/*|><+ ','_____p_')
+def cleanup_id(identifier):
+    return identifier.translate(cleanup_table)
+
 
 class nesteddict(collections.defaultdict):
     """Nested dictionary structure.

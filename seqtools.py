@@ -53,7 +53,7 @@ def random_dna_seq(n):
     choice = random.choice
     return reduce(lambda cumul,garbage:cumul+choice('ACGT'),xrange(n),'')
 
-global_align = lambda seq1,seq1: pairwise2.align.globalms(seq1,seq2,0.5,-0.75,-2.,-1.5,one_alignment_only=True)[0]
+global_align = lambda seq1,seq2: pairwise2.align.globalms(seq1,seq2,0.5,-0.75,-2.,-1.5,one_alignment_only=True)[0]
 
 def percent_id(seq1,seq2):
     alignment = global_align(seq1,seq2)

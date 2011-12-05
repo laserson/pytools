@@ -4,7 +4,6 @@ import subprocess
 import argparse
 
 argparser = argparse.ArgumentParser(description=None)
-argparser.add_argument('positional',type=int,nargs='+')
 argparser.add_argument('-q','--query',required=True)
 argparser.add_argument('-t','--target',required=True)
 argparser.add_argument('-o','--output',required=True)

@@ -18,7 +18,7 @@ output_file = sys.argv[2]
 qualities = []
 for (i,record) in enumerate(SeqIO.parse(input_file,'fastq')):
     qualities.append(record.letter_annotations['phred_quality'])
-    if i % 1000 == 0:
+    if i % 10000 == 0:
         sys.stdout.write("%i " % i)
         sys.stdout.flush()
 

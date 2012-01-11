@@ -24,7 +24,7 @@ for (i,record) in enumerate(SeqIO.parse(input_file,'fastq')):
 
 qualities = np.array(qualities)
 
-positions = qualities.shape[1]
+positions = range(1,qualities.shape[1]+1)
 
 p5  = sp.stats.scoreatpercentile(qualities,5)
 p25 = sp.stats.scoreatpercentile(qualities,25)
@@ -37,8 +37,10 @@ ax = fig.add_subplot(111)
 ax.scatter(positions,p5, s=3,c='k',linewidths=0)
 ax.scatter(positions,p95,s=3,c='k',linewidths=0)
 for (pos,low,high) in zip(positions,p25,p75):
-    ax.axvline(pos,low,high,color='k',lw=1)
-ax.scatter(positions,p50,s=5,c='k',linewidths=0)
+    ax.plot([pos,pos],[low,high],color='#bdbdbd',lw=1)
+ax.scatter(positions,p50,s=6,c='r',linewidths=0)
 ax.set_xlabel('position')
 ax.set_ylabel('phred score')
+ax.set_xlim([positions[0]-1,positions[-1]+1])
+ax.set_ylim([0,60])
 fig.savefig(output_file)

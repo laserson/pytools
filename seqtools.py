@@ -10,6 +10,10 @@ from Bio.SeqRecord  import SeqRecord
 from Bio.SeqFeature import SeqFeature, FeatureLocation
 from Bio            import pairwise2
 
+import numpy as np
+import scipy as sp
+import scipy.stats
+
 from jellyfish import hamming_distance
 
 import unafold
@@ -58,6 +62,33 @@ global_align = lambda seq1,seq2: pairwise2.align.globalms(seq1,seq2,0.5,-0.75,-2
 def percent_id(seq1,seq2):
     alignment = global_align(seq1,seq2)
     return (1. - hamming_distance(alignment[0],alignment[1]) / float(len(alignment[0]))) * 100.
+
+# barcode mapping fns
+def barcode_hamming(observed,barcodes):
+    """Compute entropy of probabilistic barcode assignment.
+    
+    observed -- SeqRecord of the barcode
+    barcodes -- list of barcode possibilities (python strings)
+    """
+    obs_seq = observed.seq.tostring()
+    distances = dict([(barcode,hamming_distance(obs_seq,barcode)) for barcode in barcodes])
+    closest = min(distances.keys(),key=lambda k: distances[k])
+    return (closest,distances[closest])
+
+def barcode_entropy(observed,barcodes):
+    """Compute entropy of probabilistic barcode assignment.
+    
+    observed -- 'fastq' SeqRecord of the barcode
+    barcodes -- list of barcode possibilities (python strings)
+    """
+    obs_seq = observed.seq.tostring()
+    obs_qual = observed.letter_annotations['phred_quality']
+    
+    M = np.array([map(lambda p: 1.-10**(-p[2]/10.) if p[0] == p[1] else (10**(-p[2]/10.))/3.,zip(obs_seq,barcode,obs_qual)) for barcode in barcodes])
+    B = np.prod(M,axis=1)
+    H = sp.stats.entropy(B)
+    
+    return H
 
 # for generating 'safe' filenames from identifiers
 cleanup_table = string.maketrans('/*|><+ ','_____p_')

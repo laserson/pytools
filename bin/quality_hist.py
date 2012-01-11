@@ -14,8 +14,11 @@ input_file = sys.argv[1]
 output_file = sys.argv[2]
 
 qualities = []
-for record in SeqIO.parse(input_file,'fastq'):
+for (i,record) in enumerate(SeqIO.parse(input_file,'fastq')):
     qualities.append(record.letter_annotations['phred_quality'])
+    if i % 1000 == 0:
+        sys.stdout.write("%i " % i)
+        sys.stdout.flush()
 
 qualities = np.array(qualities)
 

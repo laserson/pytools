@@ -2,12 +2,20 @@
 
 import os
 import sys
-import optparse
+import argparse
 
 import numpy as np
+import matplotlib as mpl
+mpl.use('agg')
 import matplotlib.pyplot as plt
 
 import seqtools
+
+argparser = argparse.ArgumentParser(description=None)
+argparser.add_argument('positional',type=int,nargs='+')
+argparser.add_argument('-o','--output',dest='outnames')
+argparser.add_argument('-l','--log',action='store_true')
+args = argparser.parse_args()
 
 option_parser = optparse.OptionParser()
 option_parser.add_option('-o','--out',dest='outname')
@@ -28,22 +36,22 @@ print "Longest read length: %i bp" % max(read_lengths)
 print "Median read length: %i bp" % np.median(read_lengths)
 print "Mean read length: %i bp" % np.mean(read_lengths)
 
-if options.outname == None:
-    outname = os.path.splitext(os.path.basename(args[0]))[0]+'.readlenhist'
+if options.outnames == None:
+    outnames = os.path.splitext(os.path.basename(args[0]))[0]+'.readlenhist'
 else:
-    outname = options.outname
+    outnames = options.outnames
 
 fig = plt.figure()
 ax = fig.add_subplot(111)
 ax.hist(read_lengths,bins=range(max(read_lengths)+1),linewidth=0,log=False)
 ax.set_xlabel('Read length')
-fig.savefig(outname+'.pdf')
-fig.savefig(outname+'.png')
+fig.savefig(outnames+'.pdf')
+fig.savefig(outnames+'.png')
 
-outname = outname+'.log'
+outnames = outnames+'.log'
 figlog = plt.figure()
 ax = figlog.add_subplot(111)
 ax.hist(read_lengths,bins=range(max(read_lengths)+1),linewidth=0,log=True)
 ax.set_xlabel('Read length')
-figlog.savefig(outname+'.pdf')
-figlog.savefig(outname+'.png')
+figlog.savefig(outnames+'.pdf')
+figlog.savefig(outnames+'.png')

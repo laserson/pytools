@@ -90,6 +90,21 @@ def barcode_entropy(observed,barcodes):
     
     return H
 
+def barcode_probabilities(observed,barcodes):
+    """Compute entropy of probabilistic barcode assignment.
+    
+    observed -- 'fastq' SeqRecord of the barcode
+    barcodes -- list of barcode possibilities (python strings)
+    """
+    obs_seq = observed.seq.tostring()
+    obs_qual = observed.letter_annotations['phred_quality']
+    
+    M = np.array([map(lambda p: 1.-10**(-p[2]/10.) if p[0] == p[1] else (10**(-p[2]/10.))/3.,zip(obs_seq,barcode,obs_qual)) for barcode in barcodes])
+    B = np.prod(M,axis=1)
+    
+    return B / np.sum(B)
+
+
 # for generating 'safe' filenames from identifiers
 cleanup_table = string.maketrans('/*|><+ ','_____p_')
 def cleanup_id(identifier):

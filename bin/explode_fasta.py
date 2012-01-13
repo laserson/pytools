@@ -8,7 +8,7 @@ import vdj
 from pyutils import cleanup_id
 
 argparser = argparse.ArgumentParser(description=None)
-argparser.add_argument('input_file',nargs='?',type=argparser.FileType('r'),default=sys.stdin)
+argparser.add_argument('input_file',nargs='?',type=argparse.FileType('r'),default=sys.stdin)
 argparser.add_argument('output_dir',nargs='?',default=os.getcwd())
 args = argparser.parse_args()
 

@@ -106,6 +106,13 @@ def counts2sample(counts):
         x[start_idx:end_idx] = x[start_idx:end_idx] * i 
     return x
 
+def density2d(x,y):
+    x = np.asarray(x).ravel()
+    y = np.asarray(y).ravel()
+    data = np.r_['0,2',x,y]
+    kde = sp.stats.kde.gaussian_kde(data)
+    return kde(data)
+
 def entropy_bootstrap(pk,size,N=1000):
     """Compute bootstrapped entropy values.
 

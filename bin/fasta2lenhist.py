@@ -13,18 +13,18 @@ import seqtools
 
 argparser = argparse.ArgumentParser(description=None)
 argparser.add_argument('positional',type=int,nargs='+')
-argparser.add_argument('-o','--output',dest='outnames')
-argparser.add_argument('-l','--log',action='store_true')
+argparser.add_argument('--log',action='store_true')
 args = argparser.parse_args()
 
-option_parser = optparse.OptionParser()
-option_parser.add_option('-o','--out',dest='outname')
-(options,args) = option_parser.parse_args()
-
-if len(args) == 1:
-    inhandle = open(args[0],'r')
+if len(args) == 2:
+    inhandle = open(args.positional[0],'r')
+    outfile = args.positional[1]
+elif len(args) == 1:
+    inhandle = open(args.positional[0],'r')
+    outfile = 'lenhist.png'
 elif len(args) == 0:
     inhandle = sys.stdin
+    outfile = 'lenhist.png'
 
 read_lengths = []
 for (name,read) in seqtools.FastaIterator(inhandle):
@@ -36,22 +36,15 @@ print "Longest read length: %i bp" % max(read_lengths)
 print "Median read length: %i bp" % np.median(read_lengths)
 print "Mean read length: %i bp" % np.mean(read_lengths)
 
-if options.outnames == None:
-    outnames = os.path.splitext(os.path.basename(args[0]))[0]+'.readlenhist'
+if not args.log:
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.hist(read_lengths,bins=range(max(read_lengths)+1),linewidth=0,log=False)
+    ax.set_xlabel('Read length')
+    fig.savefig(outfile)
 else:
-    outnames = options.outnames
-
-fig = plt.figure()
-ax = fig.add_subplot(111)
-ax.hist(read_lengths,bins=range(max(read_lengths)+1),linewidth=0,log=False)
-ax.set_xlabel('Read length')
-fig.savefig(outnames+'.pdf')
-fig.savefig(outnames+'.png')
-
-outnames = outnames+'.log'
-figlog = plt.figure()
-ax = figlog.add_subplot(111)
-ax.hist(read_lengths,bins=range(max(read_lengths)+1),linewidth=0,log=True)
-ax.set_xlabel('Read length')
-figlog.savefig(outnames+'.pdf')
-figlog.savefig(outnames+'.png')
+    figlog = plt.figure()
+    ax = figlog.add_subplot(111)
+    ax.hist(read_lengths,bins=range(max(read_lengths)+1),linewidth=0,log=True)
+    ax.set_xlabel('Read length')
+    fig.savefig(outfile)

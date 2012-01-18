@@ -16,13 +16,13 @@ argparser.add_argument('positional',nargs='+')
 argparser.add_argument('--log',action='store_true')
 args = argparser.parse_args()
 
-if len(args) == 2:
+if len(args.positional) == 2:
     inhandle = open(args.positional[0],'r')
     outfile = args.positional[1]
-elif len(args) == 1:
+elif len(args.positional) == 1:
     inhandle = open(args.positional[0],'r')
     outfile = 'lenhist.png'
-elif len(args) == 0:
+elif len(args.positional) == 0:
     inhandle = sys.stdin
     outfile = 'lenhist.png'
 

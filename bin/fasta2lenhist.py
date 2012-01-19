@@ -43,8 +43,8 @@ if not args.log:
     ax.set_xlabel('Read length')
     fig.savefig(outfile)
 else:
-    figlog = plt.figure()
-    ax = figlog.add_subplot(111)
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
     ax.hist(read_lengths,bins=range(max(read_lengths)+1),linewidth=0,log=True)
     ax.set_xlabel('Read length')
     fig.savefig(outfile)

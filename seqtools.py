@@ -181,7 +181,8 @@ def FastaIterator(handle,title2ids=lambda s: s):
         while True:
             if not line : break
             if line[0] == '>': break
-            fullline += line.translate(identity,nonalpha)
+            # fullline += line.translate(identity,nonalpha)
+            fullline += line.strip()
             line = handle.readline()
         
         yield (descr,fullline)

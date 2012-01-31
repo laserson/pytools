@@ -17,6 +17,7 @@ import scipy.stats
 from jellyfish import hamming_distance
 
 import unafold
+from pyutils import as_handle
 
 random.seed()
 
@@ -165,29 +166,30 @@ def dimer_overlap(seq1,seq2,weight_3=10):
 identity = string.maketrans('','')
 nonalpha = identity.translate(identity,string.ascii_letters)
 
-def FastaIterator(handle,title2ids=lambda s: s):
-    while True:
-        line = handle.readline()
-        if line == '' : return
-        if line[0] == '>':
-            break
-    
-    while True:
-        if line[0] != '>':
-            raise ValueError("Records in Fasta files should start with '>' character")
-        descr = title2ids(line[1:].rstrip())
-        fullline = ''
-        line = handle.readline()
+def FastaIterator(handleish,title2ids=lambda s: s):
+    with as_handle(handleish,'r') as handle:
         while True:
-            if not line : break
-            if line[0] == '>': break
-            fullline += line.translate(identity,nonalpha)
             line = handle.readline()
+            if line == '' : return
+            if line[0] == '>':
+                break
+    
+        while True:
+            if line[0] != '>':
+                raise ValueError("Records in Fasta files should start with '>' character")
+            descr = title2ids(line[1:].rstrip())
+            fullline = ''
+            line = handle.readline()
+            while True:
+                if not line : break
+                if line[0] == '>': break
+                fullline += line.translate(identity,nonalpha)
+                line = handle.readline()
         
-        yield (descr,fullline)
+            yield (descr,fullline)
         
-        if not line : return #StopIteration
-    assert False, "Should not reach this line"
+            if not line : return #StopIteration
+        assert False, "Should not reach this line"
 
 
 # ============================

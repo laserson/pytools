@@ -1,7 +1,19 @@
 import copy
 import string
 import collections
+import contextlib
 
+@contextlib.contextmanager
+def as_handle(handleish, mode='r', **kwargs):
+    """Open handleish as file.
+    
+    Stolen from Biopython
+    """
+    if isinstance(handleish, basestring):
+        with open(handleish, mode, **kwargs) as fp:
+            yield fp
+    else:
+        yield handleish
 
 # for generating 'safe' filenames from identifiers
 cleanup_table = string.maketrans('/*|><+ ','_____p_')

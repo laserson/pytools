@@ -48,6 +48,9 @@ def reverse_complement(seq):
     return reverse(complement(seq))
     # return seq.upper().translate(complement_table)[::-1]
 
+def translate(seq):
+    return Seq(seq.replace('-','N'),Alphabet.DNAAlphabet()).translate().tostring()
+
 
 def gc_content(seq):
     gc = seq.lower().count('g') + seq.lower().count('c')

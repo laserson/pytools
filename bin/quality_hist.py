@@ -29,7 +29,8 @@ qualities = []
 for (i,record) in enumerate(SeqIO.parse(input_file, 'fastq')):
     if num_reads <= 10000000 or (len(idxs) > 0 and i == idxs[0]):
         qualities.append(record.letter_annotations['phred_quality'])
-        idxs.pop(0)
+        try: idxs.pop(0)
+        except NameError: pass
     
     if i % 10000 == 0:
         sys.stdout.write("%i " % i)

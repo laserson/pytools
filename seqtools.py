@@ -90,7 +90,7 @@ def base_loglikelihood(obs_base, given_base, obs_qual):
 
 def barcode_loglikelihood(obs_seq, barcode, obs_qual):
     """P(sequence|barcode_i) = PROD[ P(s_j|b_ij) ] """
-    return np.sum(map(base_loglikelihood, zip(obs_seq,barcode,obs_qual)))
+    return np.sum([base_loglikelihood(*t) for t in zip(obs_seq,barcode,obs_qual)])
 
 def barcode_entropy(observed, barcodes):
     """Compute entropy of probabilistic barcode assignment.

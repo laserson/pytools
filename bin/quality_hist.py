@@ -1,6 +1,7 @@
 #! /usr/bin/env python
 
 import sys
+import random
 
 from Bio import SeqIO
 
@@ -12,12 +13,22 @@ import matplotlib as mpl
 mpl.use('agg')
 import matplotlib.pyplot as plt
 
+from pbs import wc
+
 input_file = sys.argv[1]
 output_file = sys.argv[2]
 
+num_lines = int(wc(input_file, '-l').split()[0])
+assert(num_lines % 4 == 0)
+num_reads = num_lines / 4
+
+idxs = random.sample(xrange(num_reads),10000000) if num_reads > 10000000 else range(num_reads)
 qualities = []
-for (i,record) in enumerate(SeqIO.parse(input_file,'fastq')):
-    qualities.append(record.letter_annotations['phred_quality'])
+for (i,record) in enumerate(SeqIO.parse(input_file, 'fastq')):
+    if i == idxs[0]:
+        qualities.append(record.letter_annotations['phred_quality'])
+        idxs.pop(0)
+    
     if i % 10000 == 0:
         sys.stdout.write("%i " % i)
         sys.stdout.flush()

@@ -22,10 +22,12 @@ num_lines = int(wc(input_file, '-l').split()[0])
 assert(num_lines % 4 == 0)
 num_reads = num_lines / 4
 
-idxs = random.sample(xrange(num_reads),10000000) if num_reads > 10000000 else range(num_reads)
+if num_reads > 10000000:
+    idxs = random.sample(xrange(num_reads),10000000)
+
 qualities = []
 for (i,record) in enumerate(SeqIO.parse(input_file, 'fastq')):
-    if i == idxs[0]:
+    if num_reads <= 10000000 or (len(idxs) > 0 and i == idxs[0]):
         qualities.append(record.letter_annotations['phred_quality'])
         idxs.pop(0)
     

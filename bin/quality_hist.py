@@ -23,14 +23,12 @@ assert(num_lines % 4 == 0)
 num_reads = num_lines / 4
 
 if num_reads > 10000000:
-    idxs = random.sample(xrange(num_reads),10000000)
+    idxs = set(sorted(random.sample(xrange(num_reads),10000000)))
 
 qualities = []
 for (i,record) in enumerate(SeqIO.parse(input_file, 'fastq')):
-    if num_reads <= 10000000 or (len(idxs) > 0 and i == idxs[0]):
+    if num_reads <= 10000000 or i in idxs:
         qualities.append(record.letter_annotations['phred_quality'])
-        try: idxs.pop(0)
-        except NameError: pass
     
     if i % 10000 == 0:
         sys.stdout.write("%i " % i)

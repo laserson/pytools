@@ -34,6 +34,8 @@ for (i,record) in enumerate(SeqIO.parse(input_file, 'fastq')):
         sys.stdout.write("%i " % i)
         sys.stdout.flush()
 
+qualities = np.array(qualities)
+
 positions = range(1, qualities.shape[1]+1)
 
 p5  = sp.stats.scoreatpercentile(qualities, 5)

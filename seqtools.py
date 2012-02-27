@@ -67,6 +67,7 @@ def percent_id(seq1,seq2):
     alignment = global_align(seq1,seq2)
     return (1. - hamming_distance(alignment[0],alignment[1]) / float(len(alignment[0]))) * 100.
 
+
 # barcode mapping fns
 def barcode_hamming(observed,barcodes):
     """Compute entropy of probabilistic barcode assignment.
@@ -79,7 +80,19 @@ def barcode_hamming(observed,barcodes):
     closest = min(distances.keys(),key=lambda k: distances[k])
     return (closest,distances[closest])
 
-def barcode_entropy(observed,barcodes):
+def base_loglikelihood(obs_base, given_base, obs_qual):
+    if obs_base == 'N':
+        return 0
+    elif obs_base == given_base:
+        return np.log1p(-np.power(10, -obs_qual / 10.))
+    else:
+        return -np.log(3) - (obs_qual / 10.) * np.log(3)
+
+def barcode_loglikelihood(obs_seq, barcode, obs_qual):
+    """P(sequence|barcode_i) = PROD[ P(s_j|b_ij) ] """
+    return np.sum(map(base_loglikelihood, zip(obs_seq,barcode,obs_qual)))
+
+def barcode_entropy(observed, barcodes):
     """Compute entropy of probabilistic barcode assignment.
     
     observed -- 'fastq' SeqRecord of the barcode
@@ -88,10 +101,8 @@ def barcode_entropy(observed,barcodes):
     obs_seq = observed.seq.tostring()
     obs_qual = observed.letter_annotations['phred_quality']
     
-    M = np.array([map(lambda p: 1.-10**(-p[2]/10.) if p[0] == p[1] else (10**(-p[2]/10.))/3.,zip(obs_seq,barcode,obs_qual)) for barcode in barcodes])
-    B = np.prod(M,axis=1)
+    B = np.exp([barcode_loglikelihood(obs_seq, barcode, obs_qual) for barcode in barcodes])
     H = sp.stats.entropy(B)
-    
     return H
 
 def barcode_probabilities(observed,barcodes):
@@ -103,11 +114,9 @@ def barcode_probabilities(observed,barcodes):
     obs_seq = observed.seq.tostring()
     obs_qual = observed.letter_annotations['phred_quality']
     
-    M = np.array([map(lambda p: 1.-10**(-p[2]/10.) if p[0] == p[1] else (10**(-p[2]/10.))/3.,zip(obs_seq,barcode,obs_qual)) for barcode in barcodes])
-    B = np.prod(M,axis=1)
-    
+    B = np.exp([barcode_loglikelihood(obs_seq, barcode, obs_qual) for barcode in barcodes])
     return B / np.sum(B)
-
+    
 
 # for generating 'safe' filenames from identifiers
 cleanup_table = string.maketrans('/*|><+ ','_____p_')

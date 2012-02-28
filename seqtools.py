@@ -76,34 +76,9 @@ def barcode_hamming(observed,barcodes):
     barcodes -- list of barcode possibilities (python strings)
     """
     obs_seq = observed.seq.tostring()
-    distances = dict([(barcode,hamming_distance(obs_seq,barcode)) for barcode in barcodes])
-    closest = min(distances.keys(),key=lambda k: distances[k])
-    return (closest,distances[closest])
-
-def base_loglikelihood(obs_base, given_base, obs_qual):
-    if obs_base == 'N':
-        return 0
-    elif obs_base == given_base:
-        return np.log1p(-np.power(10, -obs_qual / 10.))
-    else:
-        return -np.log(3) - (obs_qual / 10.) * np.log(3)
-
-def barcode_loglikelihood(obs_seq, barcode, obs_qual):
-    """P(sequence|barcode_i) = PROD[ P(s_j|b_ij) ] """
-    return np.sum([base_loglikelihood(*t) for t in zip(obs_seq,barcode,obs_qual)])
-
-def barcode_entropy(observed, barcodes):
-    """Compute entropy of probabilistic barcode assignment.
-    
-    observed -- 'fastq' SeqRecord of the barcode
-    barcodes -- list of barcode possibilities (python strings)
-    """
-    obs_seq = observed.seq.tostring()
-    obs_qual = observed.letter_annotations['phred_quality']
-    
-    B = np.exp([barcode_loglikelihood(obs_seq, barcode, obs_qual) for barcode in barcodes])
-    H = sp.stats.entropy(B)
-    return H
+    distances = [(barcode,hamming_distance(obs_seq,barcode)) for barcode in barcodes]
+    closest = min(distances,key=lambda p: p[1])
+    return closest  # tuple of (barcode, distance)
 
 def barcode_probabilities(observed,barcodes):
     """Compute entropy of probabilistic barcode assignment.
@@ -111,12 +86,31 @@ def barcode_probabilities(observed,barcodes):
     observed -- 'fastq' SeqRecord of the barcode
     barcodes -- list of barcode possibilities (python strings)
     """
-    obs_seq = observed.seq.tostring()
-    obs_qual = observed.letter_annotations['phred_quality']
+    obs_seq = np.array(list(observed.seq.tostring()))
+    obs_qual = np.array(observed.letter_annotations['phred_quality'])
+    barcodes = np.array([list(bc) for bc in barcodes])
     
-    B = np.exp([barcode_loglikelihood(obs_seq, barcode, obs_qual) for barcode in barcodes])
+    choice = np.zeros(barcodes.shape, dtype=np.int)
+    choice[barcodes == obs_seq] = 1
+    choice[barcodes != obs_seq] = 2
+    choice[:, obs_seq == 'N'] = 0
+    
+    N = np.zeros((1,barcodes.shape[1]))
+    E = np.log1p(-np.power(10, -obs_qual / 10.))
+    D = -np.log(3) - (obs_qual / 10.) * np.log(3)
+    
+    B = np.exp(np.sum(np.choose(choice, [N,E,D]), axis=1))
     return B / np.sum(B)
+
+def barcode_entropy(observed, barcodes):
+    """Compute entropy of probabilistic barcode assignment.
     
+    observed -- 'fastq' SeqRecord of the barcode
+    barcodes -- list of barcode possibilities (python strings)
+    """
+    P = barcode_probabilities(observed, barcodes)
+    return sp.stats.entropy(P)
+
 
 # for generating 'safe' filenames from identifiers
 cleanup_table = string.maketrans('/*|><+ ','_____p_')

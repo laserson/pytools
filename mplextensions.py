@@ -272,3 +272,100 @@ _redgreencdict = {'red': [(0.0,   0.0,   0.0),
 
 redgreen = mpl.colors.LinearSegmentedColormap('redgreen',_redgreencdict,256)
 redgreen.set_bad(color='w')
+
+
+def compute_log_view_lim(data):
+    lo_lim = 10**np.floor(np.log10(np.min(data)))
+    hi_lim = 10**np.ceil(np.log10(np.max(data)))
+    return (lo_lim, hi_lim)
+
+def generate_counthist(counts, label, view_lim=[1e-6,1e0,1e0,1e5]):
+    """Generate count size histogram.
+    
+    counts -- dictionary of (key,count) pairs
+    label  -- for the legend
+    """
+    max_size = max(counts.values())
+    num_chains = sum(counts.values())
+    sizes = np.arange(1,max_size+1)
+    freqs = np.float_(sizes) / num_chains
+    (hist,garbage) = np.histogram(counts.values(),bins=sizes)
+    idxs = hist > 0
+    
+    fig = plt.figure()
+    
+    ax = fig.add_subplot(111)
+    ax2 = ax.twiny()
+        
+    ax.spines['top'].set_position(('outward',5))
+    ax.spines['right'].set_visible(False)
+    ax.spines['bottom'].set_position(('outward',5))
+    ax.spines['left'].set_position(('outward',5))
+    ax.xaxis.set_ticks_position('bottom')
+    ax.yaxis.set_ticks_position('left')
+    ax.plot(freqs[idxs],hist[idxs],marker='o',linestyle='None',color='#e31a1c',markeredgewidth=0,markersize=4,clip_on=False,label=label)
+    ax.set_xscale('log')
+    ax.set_yscale('log')
+    ax.set_xlim(view_lim[:2])
+    ax.set_ylim(view_lim[2:])
+    
+    ax2.spines['top'].set_position(('outward',5))
+    ax2.spines['right'].set_visible(False)
+    ax2.spines['bottom'].set_visible(False)
+    ax2.spines['left'].set_visible(False)
+    ax2.xaxis.set_ticks_position('top')
+    ax2.yaxis.set_ticks_position('none')
+    ax2.set_xscale('log')
+    ax2.set_xlim([view_lim[0]*num_chains,view_lim[1]*num_chains])
+    
+    ax.set_xlabel('junction frequency (bottom) or count (top)')
+    ax.set_ylabel('number of junctions')
+    
+    leg = ax.legend(loc=0,numpoints=1,prop=mpl.font_manager.FontProperties(size='small'))
+    leg.get_frame().set_visible(False)
+    
+    return fig
+
+def generate_rankaccum(counts,label,view_lim=[1e0,1e5,1e-6,1e0]):
+    """Generate rankaccum curve.
+    
+    counts -- dictionary of (key,count) pairs
+    label  -- for the legend
+    """
+    num_chains = sum(counts.values())
+    freqs = np.float_(counts.values()) / num_chains
+    
+    fig = plt.figure()
+    
+    ax = fig.add_subplot(111)
+    ax2 = ax.twinx()
+    
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_position(('outward',5))
+    ax.spines['bottom'].set_position(('outward',5))
+    ax.spines['left'].set_position(('outward',5))
+    ax.xaxis.set_ticks_position('bottom')
+    ax.yaxis.set_ticks_position('left')
+    ax.plot(range(1,len(counts.values())+1),sorted(freqs,reverse=True),marker='o',linestyle='None',color='#377db8',markeredgewidth=0,markersize=4,clip_on=False,label=label)
+    ax.set_xscale('log')
+    ax.set_yscale('log')
+    ax.set_xlim(view_lim[:2])
+    ax.set_ylim(view_lim[2:])
+    
+    ax2.spines['top'].set_visible(False)
+    ax2.spines['right'].set_position(('outward',5))
+    ax2.spines['bottom'].set_visible(False)
+    ax2.spines['left'].set_visible(False)
+    ax2.xaxis.set_ticks_position('none')
+    ax2.yaxis.set_ticks_position('right')
+    ax2.set_yscale('log')
+    ax2.set_ylim([view_lim[2]*num_chains,view_lim[3]*num_chains])
+    
+    ax.set_xlabel('rank')
+    ax.set_ylabel('junction frequency (left) or count (right)')
+    
+    leg = ax.legend(loc=0,numpoints=1,prop=mpl.font_manager.FontProperties(size='small'))
+    leg.get_frame().set_visible(False)
+    
+    return fig
+

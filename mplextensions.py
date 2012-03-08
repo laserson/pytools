@@ -326,6 +326,52 @@ def generate_counthist(counts, label, view_lim=[1e-6,1e0,1e0,1e5]):
     
     return fig
 
+def generate_counthistline(counts, label, view_lim=[1e-6,1e0,1e0,1e5]):
+    """Generate count size histogram.
+    
+    counts -- dictionary of (key,count) pairs
+    label  -- for the legend
+    """
+    max_size = max(counts.values())
+    num_chains = sum(counts.values())
+    bins = np.logspace(0,np.log10(max_size),21)
+    bins_freqs = np.float_(bins) / num_chains
+    (hist,garbage) = np.histogram(counts.values(),bins=bins)
+        
+    fig = plt.figure()
+    
+    ax = fig.add_subplot(111)
+    ax2 = ax.twiny()
+        
+    ax.spines['top'].set_position(('outward',5))
+    ax.spines['right'].set_visible(False)
+    ax.spines['bottom'].set_position(('outward',5))
+    ax.spines['left'].set_position(('outward',5))
+    ax.xaxis.set_ticks_position('bottom')
+    ax.yaxis.set_ticks_position('left')
+    ax.plot(freqs[idxs],hist[idxs],marker='o',linestyle='None',color='#e31a1c',markeredgewidth=0,markersize=4,clip_on=False,label=label)
+    ax.set_xscale('log')
+    ax.set_yscale('log')
+    ax.set_xlim(view_lim[:2])
+    ax.set_ylim(view_lim[2:])
+    
+    ax2.spines['top'].set_position(('outward',5))
+    ax2.spines['right'].set_visible(False)
+    ax2.spines['bottom'].set_visible(False)
+    ax2.spines['left'].set_visible(False)
+    ax2.xaxis.set_ticks_position('top')
+    ax2.yaxis.set_ticks_position('none')
+    ax2.set_xscale('log')
+    ax2.set_xlim([view_lim[0]*num_chains,view_lim[1]*num_chains])
+    
+    ax.set_xlabel('junction frequency (bottom) or count (top)')
+    ax.set_ylabel('number of junctions')
+    
+    leg = ax.legend(loc=0,numpoints=1,prop=mpl.font_manager.FontProperties(size='small'))
+    leg.get_frame().set_visible(False)
+    
+    return fig
+
 def generate_rankaccum(counts,label,view_lim=[1e0,1e5,1e-6,1e0]):
     """Generate rankaccum curve.
     

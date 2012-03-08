@@ -349,7 +349,7 @@ def generate_counthistline(counts, label, view_lim=[1e-6,1e0,1e0,1e5]):
     ax.spines['left'].set_position(('outward',5))
     ax.xaxis.set_ticks_position('bottom')
     ax.yaxis.set_ticks_position('left')
-    ax.plot(freqs[idxs],hist[idxs],marker='o',linestyle='None',color='#e31a1c',markeredgewidth=0,markersize=4,clip_on=False,label=label)
+    ax.plot(bins_freqs,list(hist)+[hist[-1]],color='#e31a1c',drawstyle='steps-post',clip_on=False,label=label)
     ax.set_xscale('log')
     ax.set_yscale('log')
     ax.set_xlim(view_lim[:2])

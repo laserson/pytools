@@ -150,3 +150,35 @@ def entropy_bootstrap2(pk,N=1000,total=0):
         entropies.append( sp.stats.entropy(np.random.multinomial(n,pk)[:-1]) )
     
     return entropies
+
+def silhouette(Y,T):
+    """Emulate MATLAB silhouette fn for cluster quality.
+    
+    Y -- condensed-form pairwise distance matrix
+    T -- cluster assignments
+    
+    Based on StackOverflow #6644445
+    """
+    n = len(T)          # number of objects
+    clusters = set(T)   # the cluster labels
+    
+    X = sp.spatial.distance.squareform(Y)
+    
+    s = np.zeros(n)
+    for i in xrange(n):
+        incluster = T==T[i]
+        incluster[i] = False
+        if np.sum(incluster) == 0:
+            continue
+        
+        outcluster = lambda j: T==j
+        
+        # incluster average dist
+        a = np.mean( X[incluster,i] )
+        
+        # min outcluster avg dist
+        b = np.min([np.mean( X[outcluster(j),i] ) for j in (clusters-set([T[i]]))])
+        
+        s[i] = (b - a) / np.max([a,b])
+    
+    return s

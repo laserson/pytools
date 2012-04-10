@@ -175,14 +175,13 @@ def pval_KalZtest(n1,N1,n2,N2):
 def pval_logRatioMC(n1,N1,n2,N2):
     pass
 
-def pvals_logRatioMC(counts1,counts2,B=1e6,pseudocounts=1):
+def pvals_logRatioMC(counts1, counts2, B=1e6, pseudocount=1):
     """Compute component-wise p-values of difference between two count vectors
     using Monte Carlo sampling of log ratios.
     
     Null hypothesis is that data is from same multinomial.  Parameters estimated
-    by combining both count vectors.  Zeros are handled by adding pseudocounts.
-    The total weight added to the whole vector (distrib equally) is equal to
-    pseudocounts.
+    by combining both count vectors.  Zeros are handled by adding pseudocount to
+    each element.
     
     The test statistic is log Ratio, which is computed for each component.
     
@@ -196,34 +195,33 @@ def pvals_logRatioMC(counts1,counts2,B=1e6,pseudocounts=1):
     """
     if len(counts1) != len(counts2): raise ValueError, "Counts vectors have different lengths."
     
-    # per component pseudocount
-    component_pseudocount = np.float_(pseudocounts) / len(counts1)
+    counts1 = np.asarray(counts1, dtype=np.float)
+    counts2 = np.asarray(counts2, dtype=np.float)
     
-    counts1 = np.array(counts1) + component_pseudocount
-    counts2 = np.array(counts2) + component_pseudocount
-    countsMLE = counts1 + counts2
+    total1 = int(np.round(np.sum(counts1)))
+    total2 = int(np.round(np.sum(counts2)))
     
-    total1 = np.sum(counts1)
-    total2 = np.sum(counts2)
-    totalMLE = total1 + total2
+    countsMLE = counts1 + counts2 + pseudocount
+    counts1 = counts1 + pseudocount     # note: counts1 and counts2 are changed at this point
+    counts2 = counts2 + pseudocount
     
-    normcounts1 = counts1 / total1
-    normcounts2 = counts2 / total2
+    normcounts1 = counts1 / np.sum(counts1)
+    normcounts2 = counts2 / np.sum(counts2)
     
-    testabslogratios = np.abs( np.log10( normcounts2 / normcounts1 ) )
+    testabslogratios = np.abs(np.log10(normcounts2 / normcounts1))
     
-    probvec = countsMLE / totalMLE
+    probvec = countsMLE / np.sum(countsMLE)
     
     atleastasextreme = np.zeros(len(counts1))
     
     for i in xrange(B):
-        randcounts1 = np.float_(np.random.multinomial(total1,probvec)) + component_pseudocount
-        randcounts2 = np.float_(np.random.multinomial(total2,probvec)) + component_pseudocount
+        randcounts1 = np.float_(np.random.multinomial(total1, probvec)) + pseudocount
+        randcounts2 = np.float_(np.random.multinomial(total2, probvec)) + pseudocount
         
         normrandcounts1 = randcounts1 / np.sum(randcounts1)
         normrandcounts2 = randcounts2 / np.sum(randcounts2)
         
-        randabslogratios = np.abs( np.log10( normrandcounts2 / normrandcounts1 ) )
+        randabslogratios = np.abs(np.log10(normrandcounts2 / normrandcounts1))
         
         atleastasextreme += np.float_(randabslogratios >= testabslogratios)
     

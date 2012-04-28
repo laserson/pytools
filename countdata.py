@@ -183,7 +183,7 @@ def pval_KalZtest_vec(n1,N1,n2,N2):
     
     p0[(n1 == 0) & (n2 == 0)] = 0.5
     
-    Z = (p1-p2) / np.sqrt( p0 * (1-p0) * ((1/float(N1)) + (1/float(N2))) )
+    Z = (p1-p2) / np.sqrt( p0 * (1.-p0) * ((1./N1) + (1./N2)) )
     
     pval = 2 * sp.stats.norm.cdf(-1*abs(Z))
     pval[(n1 == 0) & (n2 == 0)] = 1.

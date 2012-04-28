@@ -177,16 +177,13 @@ def pval_KalZtest(n1,N1,n2,N2):
 def pval_KalZtest_vec(n1,N1,n2,N2):
     assert n1.shape[0] == n2.shape[0]
     
-    n1.dtype = np.float_
-    n2.dtype = np.float_
-    
-    p0 = (n1+n2)/(N1+N2)
-    p1 = n1/N1
-    p2 = n2/N2
+    p0 = (n1+n2)/(float(N1)+N2)
+    p1 = n1/float(N1)
+    p2 = n2/float(N2)
     
     p0[(n1 == 0) & (n2 == 0)] = 0.5
     
-    Z = (p1-p2) / np.sqrt( p0 * (1-p0) * ((1/N1) + (1/N2)) )
+    Z = (p1-p2) / np.sqrt( p0 * (1-p0) * ((1/float(N1)) + (1/float(N2))) )
     
     pval = 2 * sp.stats.norm.cdf(-1*abs(Z))
     pval[(n1 == 0) & (n2 == 0)] = 1.

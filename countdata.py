@@ -5,6 +5,8 @@ Functions for stats and analysis of count data.
 
 """
 
+import sys
+
 import numpy as np
 import scipy as sp
 # import scipy.stats
@@ -172,10 +174,27 @@ def pval_KalZtest(n1,N1,n2,N2):
     
     return pval
 
+def pval_KalZtest_vec(n1,N1,n2,N2):
+    assert n1.shape[0] == n2.shape[0]
+    
+    n1.dtype = np.float_
+    n2.dtype = np.float_
+    
+    p0 = (n1+n2)/(N1+N2)
+    p1 = n1/N1
+    p2 = n2/N2
+    
+    Z = (p1-p2) / np.sqrt( p0 * (1-p0) * ((1/N1) + (1/N2)) )
+    
+    pval = 2 * sp.stats.norm.cdf(-1*abs(Z))
+    pval[(n1 == 0) & (n2 == 0)] = 0
+    
+    return pval
+
 def pval_logRatioMC(n1,N1,n2,N2):
     pass
 
-def pvals_logRatioMC(counts1, counts2, B=1e6, pseudocount=1):
+def pvals_logRatioMC(counts1, counts2, B=1e6, pseudocount=1, verbose=False):
     """Compute component-wise p-values of difference between two count vectors
     using Monte Carlo sampling of log ratios.
     
@@ -215,6 +234,10 @@ def pvals_logRatioMC(counts1, counts2, B=1e6, pseudocount=1):
     atleastasextreme = np.zeros(len(counts1))
     
     for i in xrange(B):
+        if verbose and i % 10 == 0:
+            sys.stdout.write("%i " % i)
+            sys.stdout.flush()
+        
         randcounts1 = np.float_(np.random.multinomial(total1, probvec)) + pseudocount
         randcounts2 = np.float_(np.random.multinomial(total2, probvec)) + pseudocount
         

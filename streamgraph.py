@@ -57,10 +57,10 @@ def argsort_inside_out(streams):
     
     return upper[::-1] + lower
 
-def streamgraph(ax, streams, x=None, colors=None, baseline=baseline_weighted_wiggle):
+def streamgraph(ax, streams, x=None, colors=None, baseline=baseline_weighted_wiggle, yoffset=0.):
     streams = np.asarray(streams)
     
-    g0 = baseline(streams)
+    g0 = baseline(streams) + yoffset
     
     if x == None:
         x = range(streams.shape[1])

@@ -5,7 +5,7 @@ if __name__ == '__main__':
     import argparse
     
     argparser = argparse.ArgumentParser(description=None)
-    argparser.add_argument('positional',type=int,nargs='+')
+    argparser.add_argument('positional',type=int,nargs='*')
     argparser.add_argument('input_file',nargs='?',type=argparse.FileType('r'),default=sys.stdin)
     argparser.add_argument('output_dir',nargs='?',default=os.getcwd())
     argparser.add_argument('--option',dest='xxx',action='store_const',default=5)

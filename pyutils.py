@@ -111,7 +111,6 @@ class nesteddict(collections.defaultdict):
             curr_dict = curr_dict[key]
         key = keylist[-1]
         curr_dict[key] = curr_dict.get(key,0) + increment
-        return self
     
     def nested_add(self,keylist,obj):
         curr_dict = self
@@ -119,7 +118,6 @@ class nesteddict(collections.defaultdict):
             curr_dict = curr_dict[key]
         key = keylist[-1]
         curr_dict.setdefault(key,set()).add(obj)
-        return self
 
 
 

@@ -7,14 +7,14 @@ import scipy.stats
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 
-def jitter(data):
+def jitter(data, bins=100):
     data = np.asarray(data)
-    (hist,edges) = np.histogram(data,bins=100)
+    (hist,edges) = np.histogram(data,bins=bins)
     hist = np.float_(hist) / max(hist)
     idxs = np.searchsorted(edges[:-2],data)
     return hist[idxs]
 
-def jitter_x(x,y,width=None):
+def jitter_x(x,y,width=None,bins=100):
     x = np.asarray(x)
     y = np.asarray(y)
     
@@ -33,7 +33,7 @@ def jitter_x(x,y,width=None):
     y_jit = []
     for val in x_uniq:
         idx = (x==val)
-        scaling_factors = jitter(y[idx])
+        scaling_factors = jitter(y[idx],bins=bins)
         for (x_val,y_val,scaling) in zip(x[idx],y[idx],scaling_factors):
             x_jit.append( x_val + width * scaling * random.choice([-1,1]) * np.random.uniform(0,1))
             y_jit.append( y_val )

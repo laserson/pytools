@@ -6,16 +6,17 @@ import time
 # = LSF Dispatching =
 # ===================
 
-def submit_to_LSF(queue,LSFopfile,cmd_to_submit,mem_usage=None):
+def submit_to_LSF(queue, LSFopfile, cmd_to_submit, mem_usage=None):
     # wrap command to submit in quotations
     cmd_to_submit = r"'%s'" % cmd_to_submit.strip(r'"')
-    LSF_params = {'LSFoutput':LSFopfile,
-                      'queue':queue}
-    LSF_cmd = 'rbsub -q%(queue)s -o%(LSFoutput)s' % LSF_params
+    LSF_params = {'LSFoutput': LSFopfile,
+                  'queue': queue,
+                  'duration': duration}
+    LSF_cmd = 'rbsub -q%(queue)s -W %(duration)s -o%(LSFoutput)s' % LSF_params
     if mem_usage != None:
         LSF_cmd += r' -R "rusage[mem=%d]"' % mem_usage
-    cmd = ' '.join([LSF_cmd,cmd_to_submit])
-    p = subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE)
+    cmd = ' '.join([LSF_cmd, cmd_to_submit])
+    p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
     #p.wait()
     return p.stdout.read().split('<')[1].split('>')[0]
 

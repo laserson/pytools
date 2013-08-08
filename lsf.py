@@ -6,7 +6,7 @@ import time
 # = LSF Dispatching =
 # ===================
 
-def submit_to_LSF(queue, LSFopfile, cmd_to_submit, mem_usage=None):
+def submit_to_LSF(queue, LSFopfile, duration, cmd_to_submit, mem_usage=None):
     # wrap command to submit in quotations
     cmd_to_submit = r"'%s'" % cmd_to_submit.strip(r'"')
     LSF_params = {'LSFoutput': LSFopfile,

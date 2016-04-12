@@ -57,7 +57,7 @@ def argsort_inside_out(streams):
     
     return upper[::-1] + lower
 
-def streamgraph(ax, streams, x=None, colors=None, baseline=baseline_weighted_wiggle, yoffset=0.):
+def streamgraph(ax, streams, x=None, colors=None, baseline=baseline_weighted_wiggle, yoffset=0., whitebg=True):
     streams = np.asarray(streams)
     
     g0 = baseline(streams) + yoffset
@@ -78,8 +78,14 @@ def streamgraph(ax, streams, x=None, colors=None, baseline=baseline_weighted_wig
         layers.append(layer)
         g_lo = g_hi
     
-    polys = mpl.collections.PolyCollection(layers,facecolors=colors,linewidths=0)
+    polys = mpl.collections.PolyCollection(layers,facecolors=colors,linewidths=0, zorder=10)
     ax.add_collection(polys)
+    
+    # add an opaque white background to the streamgraph
+    if whitebg == True:
+        verts = np.asarray(zip(x,g0) + zip(x[::-1],g_hi[::-1]))
+        bglayer = mpl.patches.Polygon(verts, closed=True, color='white', alpha=1, zorder=5)
+        ax.add_patch(bglayer)
     
     return ax
 

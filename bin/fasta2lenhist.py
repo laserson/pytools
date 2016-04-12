@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 import seqtools
 
 argparser = argparse.ArgumentParser(description=None)
-argparser.add_argument('positional',nargs='+')
+argparser.add_argument('positional',nargs='*')
 argparser.add_argument('--log',action='store_true')
 args = argparser.parse_args()
 

@@ -102,7 +102,8 @@ def qvalues(p,lambd=np.arange(0,0.91,0.05),method='bootstrap',B=100,smoothlog = 
                 pi0_boot[j] = np.mean(p_boot >= lambd[j]) / (1-lambd[j])
             mse += (pi0_boot - minpi0)**2
         pi0 = np.min(pi0[mse == np.min(mse)])
-        pi0 = np.min(pi0,1)
+        print pi0.shape
+        pi0 = np.min(pi0,axis=1)
     elif method == 'smoother':
         # TODO
         print "Not implemented yet"

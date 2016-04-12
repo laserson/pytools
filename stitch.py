@@ -38,20 +38,21 @@ def stitch(record1, record2):
 
 import numpy as np
 
-input_file1 = '/n/home00/laserson/data/MS_HIV_MiSeq_data_20120105/samples/HIV1.1.fastq'
-input_file2 = '/n/home00/laserson/data/MS_HIV_MiSeq_data_20120105/samples/HIV1.2.fastq'
+if __name__ == '__main__':
+    input_file1 = '/n/home00/laserson/data/MS_HIV_MiSeq_data_20120105/samples/HIV1.1.fastq'
+    input_file2 = '/n/home00/laserson/data/MS_HIV_MiSeq_data_20120105/samples/HIV1.2.fastq'
 
-input_file1 = '/Users/laserson/Dropbox/stitcher/test.1.fastq'
-input_file2 = '/Users/laserson/Dropbox/stitcher/test.2.fastq'
+    input_file1 = '/Users/laserson/Dropbox/stitcher/test.1.fastq'
+    input_file2 = '/Users/laserson/Dropbox/stitcher/test.2.fastq'
 
-it = izip(SeqIO.parse(input_file1,'fastq'), SeqIO.parse(input_file2,'fastq'))
-(record1,record2) = it.next()
-overlaps = stitch(record1,record2)
-scores = [p[1] for p in overlaps.values()]
-(entropy(power(10,scores)), max(overlaps.items(),key=lambda i: i[1][1]))
+    it = izip(SeqIO.parse(input_file1,'fastq'), SeqIO.parse(input_file2,'fastq'))
+    (record1,record2) = it.next()
+    overlaps = stitch(record1,record2)
+    scores = [p[1] for p in overlaps.values()]
+    (entropy(power(10,scores)), max(overlaps.items(),key=lambda i: i[1][1]))
 
-entropies = []
-for (i,(rec1,rec2)) in enumerate(izip(SeqIO.parse(input_file1,'fastq'), SeqIO.parse(input_file1,'fastq'))):
-    entropies.append(stitch(rec1,rec2))
-    if i == 1000:
-        break
+    entropies = []
+    for (i,(rec1,rec2)) in enumerate(izip(SeqIO.parse(input_file1,'fastq'), SeqIO.parse(input_file1,'fastq'))):
+        entropies.append(stitch(rec1,rec2))
+        if i == 1000:
+            break
